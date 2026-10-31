@@ -2,7 +2,7 @@
 
 **MineDash** — современная веб-панель управления ботами Minecraft на базе `Mineflayer`. Проект является глубоким реворком (форком) панели **BlockMineJS**, в котором полностью переработан пользовательский интерфейс в стиле **Google Pixel — Material Design 3 (Material You)**, улучшена стабильность, безопасность и расширены возможности автоматизации.
 
-Репозиторий проекта: **[https://github.com/ssweezyxxx/MineDash](https://github.com/ssweezyxxx/MineDash)**
+Репозиторий проекта: **[тут](https://github.com/blockmineJS/blockmine)**
 
 ---
 

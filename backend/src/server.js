@@ -1,0 +1,272 @@
+const express = require('express');
+const http = require('http');
+const path = require('path');
+const fs = require('fs');
+const os = require('os');
+const prisma = require('./lib/prisma');
+
+const config = require('./config');
+const { initializeSocket } = require('./real-time/socketHandler');
+const { botManager, pluginManager } = require('./core/services');
+
+const botRoutes = require('./api/routes/bots');
+const pluginRoutes = require('./api/routes/plugins');
+const serverRoutes = require('./api/routes/servers');
+const proxiesRoutes = require('./api/routes/proxies');
+const permissionsRoutes = require('./api/routes/permissions');
+const taskRoutes = require('./api/routes/tasks');
+const { router: authRoutes, ALL_PERMISSIONS, VIEWER_PERMISSIONS } = require('./api/routes/auth');
+const panelApiKeysRoutes = require('./api/routes/panelApiKeys');
+const searchRoutes = require('./api/routes/search');
+const eventGraphsRouter = require('./api/routes/eventGraphs');
+const TaskScheduler = require('./core/TaskScheduler');
+const panelRoutes = require('./api/routes/panel');
+const panelUpdateRoutes = require('./api/routes/panelUpdate');
+const changelogRoutes = require('./api/routes/changelog');
+const logsRoutes = require('./api/routes/logs');
+const systemRoutes = require('./api/routes/system');
+const tracesRoutes = require('./api/routes/traces');
+const botHistoryRoutes = require('./api/routes/botHistory');
+const botUsersRoutes = require('./api/routes/botUsers');
+const botCommandsRoutes = require('./api/routes/botCommands');
+const botGroupsRoutes = require('./api/routes/botGroups');
+const botPermissionsRoutes = require('./api/routes/botPermissions');
+const botStatusRoutes = require('./api/routes/botStatus');
+const nodeRegistryRoutes = require('./api/routes/nodeRegistry');
+const healthRoutes = require('./api/routes/health');
+const statsRoutes = require('./api/routes/stats');
+const githubDeviceRoutes = require('./api/routes/githubDevice');
+const mcpRouter = require('./api/mcp');
+
+const app = express();
+const server = http.createServer(app);
+
+initializeSocket(server); 
+
+app.set('botManager', botManager);
+app.set('pluginManager', pluginManager);
+
+const PORT = config.server.port;
+const HOST = config.server.host;
+
+app.use((req, res, next) => {
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Content-Security-Policy', "frame-ancestors 'self'; object-src 'none'; base-uri 'self'");
+    next();
+});
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+const frontendPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
+const rootPath = path.resolve(__dirname, '..', '..');
+
+app.use('/api/auth', authRoutes);
+app.use('/api/panel/api-keys', panelApiKeysRoutes);
+
+app.use('/api/version', (req, res, next) => {
+    async function getVersion() {
+        try {
+            const packageJsonPath = path.join(rootPath, 'package.json');
+            const packageJsonData = await fs.promises.readFile(packageJsonPath, 'utf-8');
+            const { version } = JSON.parse(packageJsonData);
+            res.json({ version });
+        } catch (error) {
+            console.error("Failed to read app version:", error);
+            res.status(500).json({ error: 'Could not retrieve app version.' });
+        }
+    }
+    getVersion();
+});
+app.use('/api/tasks', taskRoutes);
+app.use('/api/bots', botUsersRoutes);
+app.use('/api/bots', botCommandsRoutes);
+app.use('/api/bots', botGroupsRoutes);
+app.use('/api/bots', botPermissionsRoutes);
+app.use('/api/bots', botStatusRoutes);
+app.use('/api/bots', botRoutes);
+app.use('/api/bot-history', botHistoryRoutes);
+app.use('/api/plugins', pluginRoutes);
+app.use('/api/servers', serverRoutes);
+app.use('/api/proxies', proxiesRoutes);
+app.use('/api/permissions', permissionsRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/panel/update', panelUpdateRoutes);
+app.use('/api/panel', panelRoutes);
+app.use('/api/changelog', changelogRoutes);
+app.use('/api/logs', logsRoutes);
+app.use('/api/system', systemRoutes);
+app.use('/api/traces', tracesRoutes);
+app.use('/api/nodes', nodeRegistryRoutes);
+app.use('/api/health', healthRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/github', githubDeviceRoutes);
+app.use('/api/mcp', mcpRouter);
+
+app.use(express.static(frontendPath));
+
+app.get(/^(?!\/api).*/, (req, res) => {
+    const indexPath = path.join(frontendPath, 'index.html');
+
+    if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+    } else {
+        console.error(`Критическая ошибка: файл index.html не найден по пути ${indexPath}`);
+        res.status(404).send(
+            '<h1>Файлы фронтенда не найдены! Соберите фронтенд командой "npm run build --workspace=frontend"</h1>'
+        );
+    }
+});
+
+app.use((err, req, res, next) => {
+    console.error('[Express Error]', err);
+    if (res.headersSent) {
+        return next(err);
+    }
+    const status = err.status || err.statusCode || 500;
+    res.status(status).json({ error: 'Внутренняя ошибка сервера' });
+});
+
+async function runStartupMigrations() {
+    const safeParseArray = (raw) => {
+        try {
+            const v = JSON.parse(raw);
+            return Array.isArray(v) ? v : [];
+        } catch {
+            return [];
+        }
+    };
+    try {
+        const result = await prisma.$executeRawUnsafe(
+            `UPDATE Server SET port = 25565 WHERE length(CAST(port AS TEXT)) > 5 OR port > 65535 OR port < 1`
+        );
+
+        if (result > 0) {
+            console.log(`[Migration] Исправлено ${result} серверов с невалидными портами (порт сброшен на 25565).`);
+        }
+
+        const adminRole = await prisma.panelRole.findUnique({ where: { name: 'Admin' } });
+        if (adminRole) {
+            const permissions = safeParseArray(adminRole.permissions);
+            if (permissions.includes('*')) {
+                const newPermissions = ALL_PERMISSIONS
+                    .map(p => p.id)
+                    .filter(id => id !== '*');
+
+                await prisma.panelRole.update({
+                    where: { id: adminRole.id },
+                    data: { permissions: JSON.stringify(newPermissions) }
+                });
+            }
+        }
+
+        await prisma.panelRole.upsert({
+            where: { name: 'Viewer' },
+            update: { permissions: JSON.stringify(VIEWER_PERMISSIONS) },
+            create: { name: 'Viewer', permissions: JSON.stringify(VIEWER_PERMISSIONS) }
+        });
+
+        const rootUser = await prisma.panelUser.findUnique({ where: { id: 1 }, include: { role: true } });
+        if (rootUser && rootUser.role) {
+            const allPermissions = ALL_PERMISSIONS.map(p => p.id).filter(id => id !== '*');
+            const currentPermissions = safeParseArray(rootUser.role.permissions);
+
+            if (JSON.stringify(allPermissions.sort()) !== JSON.stringify(currentPermissions.sort())) {
+                 await prisma.panelRole.update({
+                    where: { id: rootUser.role.id },
+                    data: { permissions: JSON.stringify(allPermissions) }
+                });
+                console.log(`[Migration] Права для root-пользователя "${rootUser.username}" (ID: 1) были синхронизированы.`);
+            }
+        }
+    } catch (error) {
+        console.error('[Migration] Ошибка во время миграции прав:', error);
+    }
+}
+
+async function startServer() {
+    await runStartupMigrations();
+    return new Promise((resolve) => {
+        server.listen(PORT, HOST, async () => {
+            console.log(`\nBackend сервер успешно запущен на http://${HOST}:${PORT}`);
+
+            if (HOST === '0.0.0.0') {
+                const networkInterfaces = os.networkInterfaces();
+                console.log('Доступные адреса:');
+                console.log(`  Frontend: http://localhost:5173`);
+                console.log(`  API:      http://localhost:${PORT}`);
+                Object.keys(networkInterfaces).forEach(ifaceName => {
+                    networkInterfaces[ifaceName].forEach(iface => {
+                        if (iface.family === 'IPv4' && !iface.internal) {
+                            console.log(`  Сеть:    http://${iface.address}:5173`);
+                        }
+                    });
+                });
+
+            } else {
+                console.log(`Frontend: http://localhost:5173`);
+                console.log(`API:     http://localhost:${PORT}`);
+            }
+            
+            await TaskScheduler.initialize();
+            try {
+                require('./core/services/PanelUpdateService').getProgress();
+            } catch (error) {
+                console.error('[PanelUpdate] Failed to resume update watcher:', error.message);
+            }
+            resolve(server);
+        });
+    });
+}
+
+
+const gracefulShutdown = async (signal) => {
+    console.log(`[Shutdown] Получен сигнал ${signal}. Начинаем корректное завершение...`);
+
+    TaskScheduler.shutdown();
+    botManager.cleanup();
+
+    const botIds = Array.from(botManager.bots.keys());
+    if (botIds.length > 0) {
+        console.log(`[Shutdown] Остановка ${botIds.length} активных ботов...`);
+        await Promise.all(botIds.map(botId => botManager.stopBot(botId)));
+        console.log('[Shutdown] Все боты остановлены.');
+    }
+
+    const io = require('./real-time/socketHandler').getIO();
+    if (io) {
+        io.close(async () => {
+            console.log('[Shutdown] WebSocket сервер закрыт.');
+            
+            await new Promise(resolve => server.close(resolve));
+            console.log('[Shutdown] HTTP сервер закрыт.');
+
+            const prisma = require('./lib/prisma');
+            await prisma.$disconnect();
+            console.log('[Shutdown] Соединение с БД закрыто.');
+
+            console.log('[Shutdown] Корректное завершение выполнено.');
+            process.exit(0);
+        });
+    }
+};
+
+process.on('SIGUSR2', () => gracefulShutdown('SIGUSR2 (nodemon)'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT (Ctrl+C)'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+process.on('unhandledRejection', (reason) => {
+    console.error('[unhandledRejection]', reason);
+});
+process.on('uncaughtException', (err) => {
+    console.error('[uncaughtException]', err);
+});
+
+
+module.exports = { startServer, app, server };
+
+if (require.main === module) {
+    startServer();
+}

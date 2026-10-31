@@ -1,0 +1,53 @@
+{
+  "app": {
+    "name": "MineDash",
+    "loading": "Loading..."
+  },
+  "bot": {
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "delete": "Delete",
+    "create": "Create Bot",
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "connecting": "Connecting...",
+      "error": "Error"
+    }
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "refresh": "Refresh",
+    "copy": "Copy",
+    "close": "Close"
+  },
+  "fields": {
+    "name": "Name"
+  },
+  "messages": {
+    "success": "Success!",
+    "error": "An error occurred",
+    "saved": "Saved",
+    "deleted": "Deleted",
+    "copied": "Copied",
+    "networkTitle": "Network error",
+    "networkDescription": "Unable to connect to the server",
+    "authError": "Authorization error",
+    "downloadError": "Failed to download file.",
+    "downloadErrorWithStatus": "Failed to download file: {{status}}",
+    "serverError": "An unknown server error occurred"
+  },
+  "plurals": {
+    "bot_one": "{{count}} bot",
+    "bot_other": "{{count}} bots",
+    "plugin_one": "{{count}} plugin",
+    "plugin_other": "{{count}} plugins"
+  }
+}

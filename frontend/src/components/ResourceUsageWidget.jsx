@@ -1,0 +1,80 @@
+import React from 'react';
+import { Badge } from './ui/badge';
+import { Cpu, MemoryStick } from 'lucide-react';
+
+const ProgressBar = ({ value, max, colorClass, label, unit = '%', showPercentage = true }) => {
+    const percentage = Math.min(100, (value / max) * 100);
+    const displayValue = showPercentage ? `${value.toFixed(1)}%` : `${value.toFixed(1)} ${unit}`;
+    return (
+        <div className="space-y-2">
+            <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">{label}</span>
+                <span className="font-mono font-medium">{displayValue}</span>
+            </div>
+            <div className="w-full bg-secondary/60 rounded-full h-2.5 overflow-hidden">
+                <div 
+                    className={`${colorClass} h-2.5 rounded-full transition-all duration-300 ease-out`} 
+                    style={{ width: `${percentage}%` }}
+                />
+            </div>
+        </div>
+    );
+};
+
+export default function ResourceUsageWidget({ bots, resourceUsage }) {
+    const runningBots = bots.filter(bot => resourceUsage[bot.id]);
+
+    return (
+        <div className="h-full flex flex-col p-6 pt-2">
+            <div className="flex-grow overflow-y-auto">
+                <div className="space-y-4">
+                    {runningBots.length > 0 ? runningBots.map(bot => {
+                        const usage = resourceUsage[bot.id];
+                        return (
+                            <div key={bot.id} className="p-4 rounded-2xl border border-border/50 bg-muted/50 hover:bg-muted/80 transition-colors">
+                                <div className="flex justify-between items-center mb-3.5">
+                                    <h4 className="font-display font-medium text-foreground">{bot.username}</h4>
+                                    <Badge variant="secondary" className="text-xs">ID: {bot.id}</Badge>
+                                </div>
+                                <div className="space-y-3.5">
+                                    <div className="flex items-center gap-3">
+                                        <Cpu className="h-4 w-4 text-primary" />
+                                        <div className="flex-grow">
+                                            <ProgressBar 
+                                                value={usage.cpu} 
+                                                max={100} 
+                                                colorClass="bg-primary" 
+                                                label="CPU"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <MemoryStick className="h-4 w-4 text-primary" />
+                                        <div className="flex-grow">
+                                            <ProgressBar 
+                                                value={usage.memory} 
+                                                max={1000} 
+                                                colorClass="bg-primary" 
+                                                label="RAM"
+                                                unit="MB"
+                                                showPercentage={false}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }) : (
+                        <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                            <div className="p-4 rounded-full bg-secondary/70 mb-4">
+                                <Cpu className="h-8 w-8 text-primary" />
+                            </div>
+                            <p className="font-display text-sm text-foreground font-medium">Нет запущенных ботов</p>
+                            <p className="text-xs text-muted-foreground mt-1">Запустите ботов для мониторинга ресурсов</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}

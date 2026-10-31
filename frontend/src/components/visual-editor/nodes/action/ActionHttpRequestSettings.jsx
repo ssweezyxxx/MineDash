@@ -1,0 +1,42 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+/**
+ * Компонент настроек для action:http_request ноды
+ */
+const ActionHttpRequestSettings = ({ nodeId, data, updateNodeData, nodeEdges }) => {
+  const { t } = useTranslation('visual-editor');
+  // Проверяем есть ли подключение к пину method
+  const hasMethodConnection = nodeEdges?.some(edge =>
+    edge.target === nodeId && edge.targetHandle === 'method'
+  );
+
+  return (
+    <div className="p-2 border-t border-slate-700">
+      {!hasMethodConnection && (
+        <>
+          <Label>{t('nodeSettings.httpMethod')}</Label>
+          <Select
+            value={data.method || 'GET'}
+            onValueChange={(value) => updateNodeData(nodeId, { method: value })}
+          >
+            <SelectTrigger className="visual-editor-node-input w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="GET">GET</SelectItem>
+              <SelectItem value="POST">POST</SelectItem>
+              <SelectItem value="PUT">PUT</SelectItem>
+              <SelectItem value="DELETE">DELETE</SelectItem>
+              <SelectItem value="PATCH">PATCH</SelectItem>
+            </SelectContent>
+          </Select>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default ActionHttpRequestSettings;

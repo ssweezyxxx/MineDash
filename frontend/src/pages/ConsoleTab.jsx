@@ -1,0 +1,241 @@
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Send, ArrowDown, Trash2, AlertTriangle } from 'lucide-react';
+import AnsiToHtml from 'ansi-to-html';
+import { useAppStore } from '@/stores/appStore';
+import { apiHelper } from '@/lib/api';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+const ansiConverter = new AnsiToHtml({
+    fg: 'var(--ansi-fg, #e5e7eb)',
+    bg: 'var(--ansi-bg, #111827)',
+    newline: true,
+    escapeXML: true,
+});
+
+const stripGradientCodes = (text) => {
+    return text
+        .replace(/\u001b\[(38|48);2;\d{1,3};\d{1,3};\d{1,3}m/g, '')
+        .replace(/\u001b\[(38|48);5;\d{1,3}m/g, '')
+        .replace(/\u001b\[[0-9]m/g, '');
+};
+
+const LogLine = React.memo(({ log, gradientEnabled }) => {
+    const logContent = typeof log === 'object' && log !== null && log.content ? log.content : (typeof log === 'string' ? log : '');
+    const processedContent = gradientEnabled ? logContent : stripGradientCodes(logContent);
+    const htmlContent = useMemo(() => ansiConverter.toHtml(processedContent), [processedContent]);
+
+    return (
+        <div className="log-line font-mono leading-relaxed whitespace-pre-wrap break-all px-5 py-1 hover:bg-muted/40 transition-colors">
+            <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        </div>
+    );
+});
+
+LogLine.displayName = 'LogLine';
+
+export default function ConsoleTab() {
+    const { t } = useTranslation('console');
+    const { botId } = useParams();
+    const bots = useAppStore(state => state.bots);
+    const botLogs = useAppStore(state => state.botLogs);
+    const botStatuses = useAppStore(state => state.botStatuses);
+    const hasPermission = useAppStore(state => state.hasPermission);
+
+    const bot = useMemo(() => bots.find(b => b.id === parseInt(botId)), [bots, botId]);
+    
+    const logs = useMemo(() => {
+        const allLogs = botLogs[botId] || [];
+        const maxLogs = allLogs.length > 1000 ? 200 : allLogs.length > 500 ? 300 : 500;
+        return allLogs.slice(-maxLogs);
+    }, [botLogs, botId]);
+    
+    const status = bot ? botStatuses[bot.id] || 'stopped' : 'stopped';
+    const canInteract = hasPermission('bot:interact');
+
+    const [command, setCommand] = useState('');
+    const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
+    const [showPerformanceWarning, setShowPerformanceWarning] = useState(false);
+    const [gradientEnabled, setGradientEnabled] = useState(() => {
+        const saved = localStorage.getItem(`bot_${botId}_gradient`);
+        if (saved !== null) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                return true;
+            }
+        }
+        return true;
+    });
+    const logContainerRef = useRef(null);
+    const lastLogCount = useRef(0);
+
+    const scrollToBottom = useCallback(() => {
+        if (logContainerRef.current) {
+            logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+        }
+    }, []);
+
+    const handleScroll = useCallback(() => {
+        if (logContainerRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = logContainerRef.current;
+            const isAtBottom = scrollHeight - clientHeight <= scrollTop + 5;
+            setIsUserScrolledUp(!isAtBottom);
+        }
+    }, []);
+
+    const handleSendCommand = async (e) => {
+        e.preventDefault();
+        if (!canInteract || !command.trim() || !bot || status !== 'running') return;
+
+        try {
+            await apiHelper(`/api/bots/${bot.id}/chat`, {
+                method: 'POST',
+                body: JSON.stringify({ message: command }),
+            });
+            setCommand('');
+            setIsUserScrolledUp(false);
+        } catch (error) {
+            console.error("Failed to send command:", error);
+        }
+    };
+
+    const clearLogs = useCallback(() => {
+        useAppStore.setState(state => {
+            if (state.botLogs[botId]) {
+                state.botLogs[botId] = [];
+            }
+        });
+        setShowPerformanceWarning(false);
+    }, [botId]);
+
+    const handleGradientToggle = useCallback((checked) => {
+        setGradientEnabled(checked);
+        localStorage.setItem(`bot_${botId}_gradient`, JSON.stringify(checked));
+    }, [botId]);
+
+    useEffect(() => {
+        setIsUserScrolledUp(false);
+        scrollToBottom();
+        const saved = localStorage.getItem(`bot_${botId}_gradient`);
+        setGradientEnabled(saved !== null ? JSON.parse(saved) : true);
+    }, [botId, scrollToBottom]);
+
+    useEffect(() => {
+        if (!isUserScrolledUp && lastLogCount.current !== logs.length) {
+            scrollToBottom();
+        }
+        lastLogCount.current = logs.length;
+
+        const allLogsForBot = botLogs[botId] || [];
+        if (allLogsForBot.length > 800) {
+            setShowPerformanceWarning(true);
+        } else {
+            setShowPerformanceWarning(false);
+        }
+    }, [logs.length, botLogs, botId, isUserScrolledUp, scrollToBottom]);
+
+    return (
+        <div className="flex flex-col h-full w-full p-3 sm:p-4">
+            <div className="flex flex-col h-full w-full bg-card/50 rounded-3xl border border-border/60 overflow-hidden relative shadow-sm">
+                <div
+                    className="flex-1 overflow-hidden"
+                    style={{ '--ansi-fg': 'hsl(var(--foreground))', '--ansi-bg': 'hsl(var(--background))' }}
+                >
+                    <div
+                        ref={logContainerRef}
+                        onScroll={handleScroll}
+                        className="h-full overflow-y-auto font-mono text-[13px] py-3"
+                    >
+                        {logs.map((log) => (
+                            <LogLine key={log.id} log={log} gradientEnabled={gradientEnabled} />
+                        ))}
+                    </div>
+                </div>
+
+                <div className="absolute top-3 right-3 md:right-5 flex items-center gap-2">
+                    {showPerformanceWarning && (
+                        <Button
+                            className="rounded-full h-9 w-9 p-0 bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30"
+                            variant="secondary"
+                            size="sm"
+                            title={t('performanceWarning')}
+                        >
+                            <AlertTriangle className="h-4 w-4" />
+                        </Button>
+                    )}
+                    {isUserScrolledUp && (
+                        <Button
+                            onClick={() => {
+                                scrollToBottom();
+                                setIsUserScrolledUp(false);
+                            }}
+                            className="rounded-full h-9 w-9 p-0 bg-primary text-primary-foreground shadow-md"
+                            variant="default"
+                            size="sm"
+                            title={t('scrollDown')}
+                        >
+                            <ArrowDown className="h-4 w-4" />
+                        </Button>
+                    )}
+                    <Button
+                        onClick={clearLogs}
+                        className="rounded-full h-9 w-9 p-0 bg-destructive/20 text-destructive border border-destructive/30 hover:bg-destructive/30"
+                        variant="secondary"
+                        size="sm"
+                        title={t('clearConsole')}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center gap-2 bg-popover/90 backdrop-blur-md border border-border/60 rounded-full px-3.5 py-1.5 shadow-md">
+                        <span className="text-xs font-medium text-foreground whitespace-nowrap">{t('gradient')}</span>
+                        <Switch
+                            checked={gradientEnabled}
+                            onCheckedChange={handleGradientToggle}
+                            className="scale-75"
+                        />
+                    </div>
+                </div>
+
+                <form onSubmit={handleSendCommand} className="flex-shrink-0 flex flex-col gap-2 p-3 bg-card/80 border-t border-border/60">
+                    {!canInteract && (
+                        <div className="text-xs text-muted-foreground px-2">{t('viewOnlyMode')}</div>
+                    )}
+                    <div className="flex items-center gap-2.5">
+                        <Input
+                            type="text"
+                            placeholder={status === 'running' ? t('sendAsBot', { username: bot?.username }) : t('startBotToSend')}
+                            value={command}
+                            onChange={(e) => setCommand(e.target.value)}
+                            disabled={status !== 'running' || !canInteract}
+                            className="flex-1 rounded-full font-mono text-sm h-10 px-4 bg-background/70"
+                        />
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span>
+                                        <Button
+                                            type="submit"
+                                            disabled={!command.trim() || status !== 'running' || !canInteract}
+                                            size="icon"
+                                            className="h-10 w-10 rounded-full shrink-0"
+                                        >
+                                            <Send className="h-4 w-4" />
+                                        </Button>
+                                    </span>
+                                </TooltipTrigger>
+                                {!canInteract && (
+                                    <TooltipContent>{t('noPermission')}</TooltipContent>
+                                )}
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}

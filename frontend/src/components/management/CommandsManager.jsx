@@ -1,0 +1,435 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog } from '@/components/ui/dialog';
+import { FilePenLine, Trash2, Share2, Upload, Sparkles, Search, AlertTriangle, Wand2 } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Switch } from '@/components/ui/switch';
+import { useToast } from '@/hooks/use-toast';
+import CommandDetailDialog from './CommandDetailDialog';
+import { CreateCommandDialog } from './CreateCommandDialog';
+import { CommandBuilderDialog } from './CommandBuilderDialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { apiHelper } from '@/lib/api';
+import { useNavigate } from 'react-router-dom';
+import ShareCommandDialog from '../ShareCommandDialog';
+import ImportCommandDialog from '../ImportCommandDialog';
+
+const OWNER_TYPES = {
+  SYSTEM: 'system'
+};
+
+function commandSourceKey(command) {
+    if (!command.owner || command.owner === OWNER_TYPES.SYSTEM) return OWNER_TYPES.SYSTEM;
+    return command.owner.startsWith('plugin:') ? command.owner.slice('plugin:'.length) : command.owner;
+}
+
+export default function CommandsManager({ commands = [], allPermissions = [], botId, isLoading, onDataChange }) {
+    const { t } = useTranslation('management');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingCommand, setEditingCommand] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const { toast } = useToast();
+    const navigate = useNavigate();
+    const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+    const [isBuilderOpen, setIsBuilderOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [commandToDelete, setCommandToDelete] = useState(null);
+    const [commandToShare, setCommandToShare] = useState(null);
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+    const [localCommands, setLocalCommands] = useState(commands);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sourceFilter, setSourceFilter] = useState('all');
+    const [sortMode, setSortMode] = useState('name');
+
+    useEffect(() => {
+        setLocalCommands(commands);
+    }, [commands]);
+
+    const sourceOptions = useMemo(() => {
+        const plugins = new Set();
+        localCommands.forEach((command) => {
+            const key = commandSourceKey(command);
+            if (key !== OWNER_TYPES.SYSTEM) plugins.add(key);
+        });
+        return [...plugins].sort((a, b) => a.localeCompare(b, 'ru'));
+    }, [localCommands]);
+
+    const filteredCommands = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+        const matched = localCommands.filter((command) => {
+            const source = commandSourceKey(command);
+            if (sourceFilter === OWNER_TYPES.SYSTEM && source !== OWNER_TYPES.SYSTEM) return false;
+            if (sourceFilter !== 'all' && sourceFilter !== OWNER_TYPES.SYSTEM && source !== sourceFilter) return false;
+            if (!query) return true;
+            return command.name.toLowerCase().includes(query)
+                || (command.description || '').toLowerCase().includes(query);
+        });
+
+        const byName = (a, b) => a.name.localeCompare(b.name, 'ru');
+        if (sortMode === 'plugin') {
+            return [...matched].sort((a, b) => {
+                const sourceA = commandSourceKey(a);
+                const sourceB = commandSourceKey(b);
+                if (sourceA === OWNER_TYPES.SYSTEM && sourceB !== OWNER_TYPES.SYSTEM) return -1;
+                if (sourceB === OWNER_TYPES.SYSTEM && sourceA !== OWNER_TYPES.SYSTEM) return 1;
+                const sourceOrder = sourceA.localeCompare(sourceB, 'ru');
+                if (sourceOrder !== 0) return sourceOrder;
+                return byName(a, b);
+            });
+        }
+        return [...matched].sort(byName);
+    }, [localCommands, searchQuery, sourceFilter, sortMode]);
+
+    // Quick stats
+    const stats = useMemo(() => {
+        return {
+            total: localCommands.length,
+            active: localCommands.filter(c => c.isEnabled).length
+        };
+    }, [localCommands]);
+    const activeCountLabel = useMemo(
+        () => t('commands.activeCount', { active: stats.active, total: stats.total }),
+        [stats.active, stats.total, t]
+    );
+
+    const handleOpenModal = (command) => {
+        if (command.isVisual || (command.graphJson && command.graphJson !== 'null')) {
+            navigate(`/bots/${botId}/commands/visual/${command.id}`);
+            return;
+        }
+        setEditingCommand(command);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingCommand(null);
+    };
+
+    const handleCreateCommand = async (commandData) => {
+        try {
+            const newCommand = await apiHelper(`/api/bots/${botId}/commands`, {
+                method: 'POST',
+                body: JSON.stringify({ ...commandData, isVisual: true }),
+            });
+            toast({ title: t('messages.success'), description: t('commands.toast.created', { name: newCommand.name }) });
+            onDataChange();
+            setIsCreateDialogOpen(false);
+      navigate(`/bots/${botId}/commands/visual/${newCommand.id}`);
+        } catch (error) {
+            toast({ variant: 'destructive', title: t('messages.error'), description: t('commands.toast.createError', { error: error.message }) });
+        }
+    };
+
+    const handleBuilderCreate = async (payload, openEditor) => {
+        try {
+            const newCommand = await apiHelper(`/api/bots/${botId}/commands`, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+            });
+            toast({ title: t('messages.success'), description: t('commands.toast.created', { name: newCommand.name }) });
+            onDataChange();
+            setIsBuilderOpen(false);
+            if (openEditor) navigate(`/bots/${botId}/commands/visual/${newCommand.id}`);
+            return true;
+        } catch (error) {
+            toast({ variant: 'destructive', title: t('messages.error'), description: t('commands.toast.createError', { error: error.message }) });
+            return false;
+        }
+    };
+
+    const handleDeleteCommand = async () => {
+        if (!commandToDelete) return;
+        try {
+            await apiHelper(`/api/bots/${botId}/commands/${commandToDelete.id}`, { method: 'DELETE' });
+            toast({ title: t('messages.success'), description: t('commands.toast.deleted', { name: commandToDelete.name }) });
+            onDataChange();
+        } catch (error) {
+            toast({ variant: 'destructive', title: t('messages.error'), description: t('commands.toast.deleteError', { error: error.message }) });
+        }
+        setIsDeleteDialogOpen(false);
+        setCommandToDelete(null);
+    };
+
+    const updateCommand = async (commandId, data, skipDataChange = false) => {
+        try {
+            await apiHelper(`/api/bots/${botId}/commands/${commandId}`, {
+                method: 'PUT',
+                body: JSON.stringify(data),
+            });
+            if (!skipDataChange) {
+                onDataChange();
+            }
+            return true;
+        } catch (error) {
+            return false;
+        }
+    };
+
+    const handleToggle = async (command, isEnabled) => {
+        setLocalCommands(prevCommands =>
+            prevCommands.map(cmd =>
+                cmd.id === command.id ? { ...cmd, isEnabled } : cmd
+            )
+        );
+
+        const success = await updateCommand(command.id, { isEnabled }, true);
+        if (success) {
+            toast({ title: t('messages.success'), description: isEnabled ? t('commands.toast.enabled', { name: command.name }) : t('commands.toast.disabled', { name: command.name }) });
+        } else {
+            setLocalCommands(prevCommands =>
+                prevCommands.map(cmd =>
+                    cmd.id === command.id ? { ...cmd, isEnabled: !isEnabled } : cmd
+                )
+            );
+            toast({ variant: 'destructive', title: t('messages.error'), description: t('commands.toast.toggleError') });
+        }
+    };
+
+    const handleSubmit = async (commandData) => {
+        if (!editingCommand) return;
+        setIsSaving(true);
+        const success = await updateCommand(editingCommand.id, commandData);
+        if (success) {
+            toast({ title: t('messages.success'), description: t('commands.toast.updated', { name: editingCommand.name }) });
+            handleCloseModal();
+        }
+        setIsSaving(false);
+    };
+
+    return (
+        <TooltipProvider>
+        <Card className="h-full flex flex-col">
+            <CardHeader>
+                <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1">
+                        <div className="flex items-baseline gap-3 mb-1">
+                            <CardTitle className="text-2xl font-bold tracking-tight">{t('commands.title')}</CardTitle>
+                            <span className="relative inline-flex min-h-[20px] items-center overflow-hidden text-sm text-muted-foreground">
+                                <AnimatePresence mode="wait" initial={false}>
+                                    <motion.span
+                                        key={activeCountLabel}
+                                        initial={{ opacity: 0, y: 4 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -4 }}
+                                        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                                        className="inline-block"
+                                    >
+                                        {activeCountLabel}
+                                    </motion.span>
+                                </AnimatePresence>
+                            </span>
+                        </div>
+                        <CardDescription>{t('commands.description')}</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setIsImportDialogOpen(true)}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            {t('commands.import')}
+                        </Button>
+                        <Button variant="outline" onClick={() => setIsBuilderOpen(true)}>
+                            <Wand2 className="mr-2 h-4 w-4" />Конструктор
+                        </Button>
+                        <Button onClick={() => setIsCreateDialogOpen(true)}>
+                            <Sparkles className="mr-2 h-4 w-4" />{t('commands.create')}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Search */}
+                <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder={t('commands.searchPlaceholder')}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
+                    <Select value={sortMode} onValueChange={setSortMode}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="name">{t('commands.sort.name')}</SelectItem>
+                            <SelectItem value="plugin">{t('commands.sort.plugin')}</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                        <SelectTrigger className="w-full sm:w-[200px]">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">{t('commands.sourceFilter.all')}</SelectItem>
+                            <SelectItem value="system">{t('commands.sourceFilter.system')}</SelectItem>
+                            {sourceOptions.map((source) => (
+                                <SelectItem key={source} value={source}>{source}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            </CardHeader>
+
+            <CardContent className="flex-grow overflow-y-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[60px]">{t('commands.table.enabled')}</TableHead>
+                            <TableHead>{t('commands.table.command')}</TableHead>
+                            <TableHead>{t('commands.table.type')}</TableHead>
+                            <TableHead>{t('commands.table.source')}</TableHead>
+                            <TableHead>{t('commands.table.aliases')}</TableHead>
+                            <TableHead>{t('commands.table.permission')}</TableHead>
+                            <TableHead className="w-[80px]">{t('commands.table.cooldown')}</TableHead>
+                            <TableHead className="text-right w-[140px]">{t('commands.table.actions')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {isLoading ? (
+                            <TableRow><TableCell colSpan={8} className="text-center">{t('commands.loading')}</TableCell></TableRow>
+                        ) : filteredCommands.length === 0 ? (
+                            <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground">
+                                {searchQuery || sourceFilter !== 'all' ? t('commands.notFound') : t('commands.empty')}
+                            </TableCell></TableRow>
+                        ) : (
+                            filteredCommands.map(command => (
+                                <TableRow key={command.id} onClick={() => handleOpenModal(command)} className="cursor-pointer transition-colors hover:bg-muted/50">
+                                    <TableCell onClick={e => e.stopPropagation()}>
+                                        <Switch checked={command.isEnabled} onCheckedChange={checked => handleToggle(command, checked)} />
+                                    </TableCell>
+                                    <TableCell className="font-medium">
+                                        {command.name}
+                                        {command.description && (
+                                            <div className="text-xs text-muted-foreground max-w-[200px] truncate" title={command.description}>
+                                                {command.description}
+                                            </div>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant={(command.isVisual || (command.graphJson && command.graphJson !== 'null')) ? 'default' : 'secondary'}>
+                                            {(command.isVisual || (command.graphJson && command.graphJson !== 'null')) ? 'Visual' : 'Code'}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant={command.owner === OWNER_TYPES.SYSTEM ? 'secondary' : 'outline'} className="text-xs">
+                                            {command.owner ? command.owner.replace('plugin:', '') : 'system'}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-wrap gap-1 max-w-[120px]">
+                                            {Array.isArray(command.aliases) && command.aliases.length > 0
+                                                ? command.aliases.slice(0, 2).map(alias => <Badge key={alias} variant="secondary" className="text-xs">{alias}</Badge>)
+                                                : <span className="text-muted-foreground text-xs">-</span>
+                                            }
+                                            {Array.isArray(command.aliases) && command.aliases.length > 2 && (
+                                                <span className="text-xs text-muted-foreground">+{command.aliases.length - 2}</span>
+                                            )}
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-xs">
+                                        {command.permissionId ? (
+                                            allPermissions.find(p => p.id === command.permissionId)?.name || '-'
+                                        ) : (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <div className="flex items-center gap-1 text-yellow-600 dark:text-yellow-500 cursor-help">
+                                                        <AlertTriangle className="h-3.5 w-3.5" />
+                                                        <span>{t('commands.noPermission')}</span>
+                                                    </div>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{t('commands.noPermissionTooltip')}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-xs">
+                                        {command.cooldown}s
+                                    </TableCell>
+                                    <TableCell>
+                                        {(command.isVisual || (command.graphJson && command.graphJson !== 'null')) ? (
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button variant="outline" size="sm" onClick={e => { e.stopPropagation(); navigate(`/bots/${botId}/commands/visual/${command.id}`); }}>
+                                                    <FilePenLine className="h-3 w-3 mr-1" />
+                                                    {t('commands.open')}
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8" title={t('commands.export')} onClick={e => { e.stopPropagation(); setCommandToShare(command); }}>
+                                                    <Share2 className="h-3 w-3" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-destructive" title={t('commands.delete')} onClick={e => { e.stopPropagation(); setCommandToDelete(command); setIsDeleteDialogOpen(true); }}>
+                                                    <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <span className="text-muted-foreground text-xs">-</span>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <CommandDetailDialog
+                    onCancel={handleCloseModal}
+                    command={editingCommand}
+                    botId={botId}
+                    allPermissions={allPermissions}
+                    onSubmit={handleSubmit}
+                    isSaving={isSaving}
+                />
+            </Dialog>
+
+            <ImportCommandDialog
+                botId={botId}
+                open={isImportDialogOpen}
+                onOpenChange={setIsImportDialogOpen}
+                onImportSuccess={() => {
+                    setIsImportDialogOpen(false);
+                    onDataChange();
+                }}
+            />
+
+            {commandToShare && (
+                <ShareCommandDialog
+                    botId={botId}
+                    commandId={commandToShare.id}
+                    onCancel={() => setCommandToShare(null)}
+                />
+            )}
+
+            <CreateCommandDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} onCreate={handleCreateCommand} />
+            <CommandBuilderDialog open={isBuilderOpen} onOpenChange={setIsBuilderOpen} onCreate={handleBuilderCreate} permissions={allPermissions} />
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>{t('commands.deleteConfirm.title')}</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {t('commands.deleteConfirm.description', { name: commandToDelete?.name })}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t('commands.deleteConfirm.cancel')}</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteCommand}>{t('commands.deleteConfirm.delete')}</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </Card>
+        </TooltipProvider>
+    );
+}

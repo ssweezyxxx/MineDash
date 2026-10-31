@@ -1,0 +1,7 @@
+MineDash is a modified version of BlockMine
+https://github.com/blockmineJS/blockmine
+Original work (c) merka and BlockMine contributors, MIT license (see LICENSE).
+
+Modifications: renamed to MineDash, named color theme presets, easy command
+builder, telemetry/update/network-binding defaults changed, data directory moved
+to ~/.copymine.

@@ -1,0 +1,123 @@
+{
+  "title": "Administration",
+  "description": "Manage users, roles and global panel settings.",
+  "tabs": {
+    "users": "Users",
+    "roles": "Roles",
+    "settings": "Global settings"
+  },
+  "users": {
+    "title": "Panel Users",
+    "description": "Manage user accounts and their roles.",
+    "createUser": "Create User",
+    "table": {
+      "name": "Name",
+      "role": "Role",
+      "botAccess": "Bot Access",
+      "createdAt": "Created",
+      "actions": "Actions"
+    },
+    "allBots": "All bots",
+    "selectedBots": "Selected: {{count}}",
+    "deleteConfirm": "Delete user \"{{name}}\"?",
+    "deleteDescription": "This action is irreversible.",
+    "deleteButton": "Yes, delete",
+    "userUpdated": "User updated.",
+    "userCreated": "User created.",
+    "userDeleted": "User deleted.",
+    "loadError": "Failed to load data.",
+    "saveError": "Failed to save user."
+  },
+  "roles": {
+    "title": "Panel Roles",
+    "description": "Manage roles and their permission sets.",
+    "createRole": "Create Role",
+    "table": {
+      "name": "Name",
+      "permissions": "Permissions",
+      "actions": "Actions"
+    },
+    "allPermissions": "All permissions",
+    "roleCreated": "Role created successfully.",
+    "roleUpdated": "Role updated successfully.",
+    "roleDeleted": "Role deleted.",
+    "deleteConfirm": "Delete role \"{{name}}\"?",
+    "deleteDescription": "This action is irreversible. Make sure this role is not assigned to any user.",
+    "deleteButton": "Yes, delete",
+    "loadError": "Failed to load data."
+  },
+  "userForm": {
+    "editTitle": "Edit User",
+    "createTitle": "Create New User",
+    "editDescription": "Editing data for {{name}}.",
+    "createDescription": "Fill in the data to create a new account.",
+    "username": "Username",
+    "password": "Password",
+    "newPassword": "New password (leave empty to keep current)",
+    "role": "Role",
+    "selectRole": "Select role...",
+    "allBotsAccess": "Access to all bots",
+    "ownerNote": "(owner, always enabled)",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "validation": {
+      "usernameRequired": "Username and role are required.",
+      "passwordRequired": "Password (min. 4 characters) is required for new user.",
+      "passwordMinLength": "New password must be at least 4 characters."
+    }
+  },
+  "roleForm": {
+    "editTitle": "Edit Role",
+    "createTitle": "Create New Role",
+    "description": "Specify role name and select available permissions.",
+    "roleName": "Role Name",
+    "permissions": "Permissions",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "validation": {
+      "nameRequired": "Role name cannot be empty."
+    }
+  },
+  "settings": {
+    "title": "Global Settings",
+    "description": "These settings affect the entire panel. Network access changes require a restart.",
+    "restartRequired": "Restart Note",
+    "restartDescription": "Discord Rich Presence settings apply immediately. Restarting the panel (e.g. via <code>start.bat</code> or <code>node backend/cli.js</code>) is only required when changing External Access.",
+    "externalAccess": "External Access",
+    "externalAccessDescription": "Allow panel access from local network or internet.",
+    "telemetry": "Anonymous Telemetry",
+    "telemetryDescription": "Send anonymous statistics (bot count, plugins) to improve the project.",
+    "save": "Save Settings",
+    "saveSuccess": "Settings saved and applied.",
+    "loadError": "Failed to load global settings.",
+    "discordRpc": {
+      "title": "Discord Status (Rich Presence)",
+      "description": "Displays your panel activity, current section, running bot count, and a Telegram link button on your Discord profile.",
+      "statusConnected": "Connected to Discord",
+      "statusWaiting": "Waiting for Discord",
+      "statusDisabled": "Disabled",
+      "reconnect": "Reconnect",
+      "reconnectedSuccess": "Discord Rich Presence connected!",
+      "reconnectAttempted": "Connection requested. Make sure the desktop Discord client is running.",
+      "reconnectError": "Failed to reconnect Discord Rich Presence.",
+      "enable": "Display activity in Discord",
+      "enableDescription": "Show MineDash status on your Discord profile on this computer.",
+      "showSection": "Show current section",
+      "showSectionDescription": "Display which tab or bot page you are currently viewing.",
+      "showBotCount": "Show running bot count",
+      "showBotCountDescription": "Display a line with active and total bots.",
+      "clientId": "Application Client ID",
+      "largeImageKey": "Large Image Key",
+      "largeImageText": "Large Image Text",
+      "buttonLabel": "Button Label",
+      "buttonUrl": "Button URL (Telegram Link)",
+      "previewTitle": "Discord Status Preview"
+    }
+  },
+  "common": {
+    "error": "Error",
+    "success": "Success"
+  }
+}

@@ -1,0 +1,86 @@
+
+.idea/
+.vscode/
+*.suo
+*.sw?
+.DS_Store
+
+
+.env
+.env.*
+!.env.example
+
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+x.js
+com.txt
+
+node_modules/
+
+# Test coverage reports
+coverage/
+**/coverage/
+
+# ===================================================================
+# Backend
+# ===================================================================
+
+
+/backend/prisma/generated/
+/backend/prisma/client/
+
+/backend/prisma/*.db
+/backend/prisma/*.db-journal
+/backend/prisma/*.db-wal
+/backend/prisma/*.db-shm
+
+/backend/storage/
+
+
+# ===================================================================
+# Frontend
+# ===================================================================
+
+/frontend/dist/
+/frontend/dist-ssr/
+
+/frontend/*.local
+
+/plugins
+
+plug.md
+/.blockmine/
+
+stats-server/
+blockmine-proxy/
+/mptest
+/stats-server
+
+
+# новый раб. классно пишет вики кстати
+.qoder
+/rules
+/packages
+
+.claude/
+
+/blockmine-sdk
+/blockmine-sdk-test
+
+lenging/
+landing
+docs/
+scripts/
+post/
+
+
+# Архивы и временные файлы
+*.rar
+*.zip
+.tmp_textures/
+test_parse.js

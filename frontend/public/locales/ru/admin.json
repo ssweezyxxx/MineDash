@@ -1,0 +1,123 @@
+{
+  "title": "Администрирование",
+  "description": "Управление пользователями, ролями и глобальными настройками панели.",
+  "tabs": {
+    "users": "Пользователи",
+    "roles": "Роли",
+    "settings": "Глобальные настройки"
+  },
+  "users": {
+    "title": "Пользователи панели",
+    "description": "Управление учетными записями и их ролями.",
+    "createUser": "Создать пользователя",
+    "table": {
+      "name": "Имя",
+      "role": "Роль",
+      "botAccess": "Доступ к ботам",
+      "createdAt": "Дата создания",
+      "actions": "Действия"
+    },
+    "allBots": "Все боты",
+    "selectedBots": "Выбрано: {{count}}",
+    "deleteConfirm": "Удалить пользователя \"{{name}}\"?",
+    "deleteDescription": "Это действие необратимо.",
+    "deleteButton": "Да, удалить",
+    "userUpdated": "Пользователь обновлен.",
+    "userCreated": "Пользователь создан.",
+    "userDeleted": "Пользователь удален.",
+    "loadError": "Не удалось загрузить данные.",
+    "saveError": "Не удалось сохранить пользователя."
+  },
+  "roles": {
+    "title": "Роли панели",
+    "description": "Управление ролями и наборами их прав.",
+    "createRole": "Создать роль",
+    "table": {
+      "name": "Название",
+      "permissions": "Права",
+      "actions": "Действия"
+    },
+    "allPermissions": "Все права",
+    "roleCreated": "Роль успешно создана.",
+    "roleUpdated": "Роль успешно обновлена.",
+    "roleDeleted": "Роль удалена.",
+    "deleteConfirm": "Удалить роль \"{{name}}\"?",
+    "deleteDescription": "Это действие необратимо. Убедитесь, что эта роль не назначена ни одному пользователю.",
+    "deleteButton": "Да, удалить",
+    "loadError": "Не удалось загрузить данные."
+  },
+  "userForm": {
+    "editTitle": "Редактировать пользователя",
+    "createTitle": "Создать нового пользователя",
+    "editDescription": "Редактирование данных для {{name}}.",
+    "createDescription": "Заполните данные для создания новой учетной записи.",
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "newPassword": "Новый пароль (оставьте пустым, чтобы не менять)",
+    "role": "Роль",
+    "selectRole": "Выберите роль...",
+    "allBotsAccess": "Доступ ко всем ботам",
+    "ownerNote": "(владелец, всегда включено)",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "validation": {
+      "usernameRequired": "Имя пользователя и роль обязательны.",
+      "passwordRequired": "Пароль (мин. 4 символа) обязателен для нового пользователя.",
+      "passwordMinLength": "Новый пароль должен содержать не менее 4 символов."
+    }
+  },
+  "roleForm": {
+    "editTitle": "Редактировать роль",
+    "createTitle": "Создать новую роль",
+    "description": "Укажите имя роли и выберите доступные ей права.",
+    "roleName": "Название роли",
+    "permissions": "Права доступа",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "validation": {
+      "nameRequired": "Имя роли не может быть пустым."
+    }
+  },
+  "settings": {
+    "title": "Глобальные настройки",
+    "description": "Эти настройки влияют на работу всей панели. Изменения сетевого доступа требуют перезапуска.",
+    "restartRequired": "Примечание о перезапуске",
+    "restartDescription": "Настройки Discord Rich Presence применяются сразу. Перезапуск панели (например, через <code>start.bat</code> или <code>node backend/cli.js</code>) нужен только при смене режима сетевого доступа.",
+    "externalAccess": "Внешний доступ",
+    "externalAccessDescription": "Разрешить доступ к панели из локальной сети или интернета.",
+    "telemetry": "Анонимная телеметрия",
+    "telemetryDescription": "Отправлять анонимную статистику (кол-во ботов, плагинов) для улучшения проекта.",
+    "save": "Сохранить настройки",
+    "saveSuccess": "Настройки успешно сохранены и применены.",
+    "loadError": "Не удалось загрузить глобальные настройки.",
+    "discordRpc": {
+      "title": "Статус в Discord (Rich Presence)",
+      "description": "Отображает вашу активность в панели, текущий открытый раздел, количество запущенных ботов и кнопку со ссылкой на Telegram в профиле Discord.",
+      "statusConnected": "Подключено к Discord",
+      "statusWaiting": "Ожидание Discord",
+      "statusDisabled": "Отключено",
+      "reconnect": "Переподключить",
+      "reconnectedSuccess": "Discord Rich Presence успешно подключен!",
+      "reconnectAttempted": "Запрос на подключение отправлен. Убедитесь, что десктопный клиент Discord запущен.",
+      "reconnectError": "Не удалось переподключить Discord Rich Presence.",
+      "enable": "Отображать активность в Discord",
+      "enableDescription": "Показывать статус MineDash в вашем профиле Discord на этом компьютере.",
+      "showSection": "Показывать открытый раздел",
+      "showSectionDescription": "Отображать, в какой вкладке или у какого бота вы находитесь.",
+      "showBotCount": "Показывать количество запущенных ботов",
+      "showBotCountDescription": "Выводить строку с числом активных и созданных ботов.",
+      "clientId": "Application Client ID",
+      "largeImageKey": "Large Image Key (ключ иконки)",
+      "largeImageText": "Подсказка иконки (Large Image Text)",
+      "buttonLabel": "Текст кнопки",
+      "buttonUrl": "Ссылка кнопки (Telegram URL)",
+      "previewTitle": "Предпросмотр статуса в Discord"
+    }
+  },
+  "common": {
+    "error": "Ошибка",
+    "success": "Успешно"
+  }
+}

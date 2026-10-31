@@ -1,0 +1,223 @@
+{
+  "title": "Управление ботом",
+  "description": "Настройте пользователей, группы, права и команды для бота {{username}}.",
+  "tabs": {
+    "users": "Пользователи",
+    "groups": "Группы",
+    "permissions": "Права",
+    "commands": "Команды",
+    "history": "История"
+  },
+  "messages": {
+    "success": "Успех",
+    "error": "Ошибка",
+    "commandCreated": "Команда \"{{name}}\" успешно создана.",
+    "commandCreateError": "Не удалось создать команду",
+    "loadError": "Не удалось загрузить данные управления.",
+    "criticalError": "Критическая ошибка"
+  },
+  "dynamicInput": {
+    "placeholder": "Добавить элемент...",
+    "add": "Добавить"
+  },
+  "users": {
+    "title": "Пользователи",
+    "description": "Список всех пользователей, которые взаимодействовали с ботом.",
+    "searchPlaceholder": "Поиск по никнейму...",
+    "blacklisted": "В черном списке",
+    "table": {
+      "username": "Никнейм",
+      "groups": "Группы",
+      "status": "Статус",
+      "actions": "Действия",
+      "loading": "Загрузка..."
+    },
+    "pagination": {
+      "showing": "Показано {{from}} - {{to}} из {{total}} пользователей",
+      "previous": "Назад",
+      "next": "Вперед",
+      "page": "Страница {{page}} из {{totalPages}}"
+    },
+    "toast": {
+      "updated": "Данные пользователя {{name}} обновлены."
+    }
+  },
+  "groups": {
+    "title": "Группы",
+    "description": "Список всех групп и их прав для этого бота.",
+    "create": "Создать группу",
+    "table": {
+      "name": "Название",
+      "permissions": "Права",
+      "actions": "Действия",
+      "loading": "Загрузка..."
+    },
+    "toast": {
+      "saved": "Группа успешно {{action}}.",
+      "deleted": "Группа удалена."
+    },
+    "actions": {
+      "created": "создана",
+      "updated": "обновлена"
+    },
+    "errors": {
+      "missingBotId": "Не удалось определить ID бота.",
+      "deleteSource": "Нельзя удалить группу с источником \"{{owner}}\"."
+    },
+    "deleteDialog": {
+      "title": "Удалить группу \"{{name}}\"?",
+      "description": "Это действие нельзя будет отменить. Пользователи, состоявшие в этой группе, потеряют соответствующие права.",
+      "confirm": "Да, удалить группу"
+    }
+  },
+  "permissionsSection": {
+    "title": "Права",
+    "description": "Полный список всех прав, зарегистрированных для этого бота.",
+    "create": "Создать право",
+    "table": {
+      "permission": "Право",
+      "description": "Описание",
+      "source": "Источник",
+      "loading": "Загрузка..."
+    },
+    "toast": {
+      "created": "Новое право успешно создано."
+    },
+    "createDialog": {
+      "title": "Создать новое право",
+      "description": "Права используются для тонкой настройки доступа к командам.",
+      "nameLabel": "Название права (например, plugin.name.action)",
+      "descriptionLabel": "Описание",
+      "cancel": "Отмена",
+      "create": "Создать",
+      "creating": "Создание..."
+    }
+  },
+  "commandEdit": {
+    "title": "Редактировать команду: {{name}}",
+    "enabled": "Команда включена",
+    "aliases": "Алиасы",
+    "aliasesPlaceholder": "Например, пинг",
+    "aliasesDescription": "Дополнительные имена для вызова команды.",
+    "cooldown": "Кулдаун (секунды)",
+    "requiredPermission": "Требуемое право",
+    "selectPermission": "Выберите право...",
+    "noPermission": "Не требуется",
+    "allowedChatTypes": "Разрешенные типы чатов",
+    "chatTypesPlaceholder": "Например, trade",
+    "chatTypesDescription": "Типы чатов, в которых будет работать команда.",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "saving": "Сохранение..."
+  },
+  "createCommand": {
+    "title": "Создать новую команду",
+    "description": "Введите имя и описание для вашей новой команды. Вы сможете настроить ее позже.",
+    "name": "Имя",
+    "commandDescription": "Описание",
+    "create": "Создать"
+  },
+  "commandHistory": {
+    "title": "История команд",
+    "description": "Кто и какую команду вызывал у этого бота.",
+    "command": "Команда",
+    "empty": "Вызовов ещё не было.",
+    "sinceStart": "С момента запуска",
+    "allTime": "Всё время",
+    "allTimeHint": "Хранится в базе и остаётся после перезапуска панели."
+  },
+  "commandDetail": {
+    "title": "Команда: {{name}}",
+    "tabOverview": "Обзор",
+    "tabSettings": "Настройки",
+    "tabHistory": "История",
+    "historyLoading": "Загрузка истории...",
+    "historyError": "Не удалось загрузить историю вызовов.",
+    "historyEmpty": "Эту команду ещё никто не вызывал.",
+    "historyHint": "Показываются вызовы с момента запуска панели. После перезапуска список начинается заново.",
+    "historyCount": "Всего: {{count}}",
+    "historyUser": "Кто",
+    "historyChat": "Чат",
+    "historyWhen": "Когда",
+    "historyArgs": "Аргументы",
+    "historyResult": "Результат",
+    "historyOk": "Ок",
+    "historyFail": "Ошибка",
+    "usage": "Использование",
+    "arguments": "Аргументы",
+    "argument": "Аргумент",
+    "type": "Тип",
+    "required": "Обязательный",
+    "yes": "Да",
+    "no": "Нет",
+    "source": "Источник",
+    "enabled": "Команда включена",
+    "aliases": "Алиасы",
+    "cooldown": "Кулдаун (сек)",
+    "requiredPermission": "Требуемое право",
+    "noPermission": "Не требуется",
+    "allowedChatTypes": "Разрешенные типы чатов",
+    "close": "Закрыть",
+    "saveSettings": "Сохранить настройки"
+  },
+  "userEdit": {
+    "title": "Редактировать пользователя: {{name}}",
+    "description": "Управляйте группами и статусом черного списка.",
+    "blacklist": "Черный список",
+    "blacklistDescription": "Пользователь в черном списке не сможет использовать команды.",
+    "userGroups": "Группы пользователя",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "saving": "Сохранение..."
+  },
+  "commands": {
+    "title": "Команды",
+    "activeCount": "{{active}} из {{total}} активно",
+    "description": "Список всех команд, доступных боту",
+    "import": "Импорт",
+    "create": "Создать",
+    "searchPlaceholder": "Поиск по названию или описанию...",
+    "sort": {
+      "name": "По имени",
+      "plugin": "По плагину"
+    },
+    "sourceFilter": {
+      "all": "Все источники",
+      "system": "Системные"
+    },
+    "table": {
+      "enabled": "Вкл",
+      "command": "Команда",
+      "type": "Тип",
+      "source": "Источник",
+      "aliases": "Алиасы",
+      "permission": "Право",
+      "cooldown": "CD",
+      "actions": "Действия"
+    },
+    "loading": "Загрузка...",
+    "notFound": "Команды не найдены",
+    "empty": "Нет команд",
+    "open": "Открыть",
+    "export": "Экспорт",
+    "delete": "Удалить",
+    "noPermission": "Нет",
+    "noPermissionTooltip": "Эту команду смогут использовать все",
+    "deleteConfirm": {
+      "title": "Вы уверены?",
+      "description": "Вы действительно хотите удалить команду \"{{name}}\"? Это действие нельзя будет отменить.",
+      "cancel": "Отмена",
+      "delete": "Удалить"
+    },
+    "toast": {
+      "created": "Команда \"{{name}}\" успешно создана.",
+      "createError": "Не удалось создать команду: {{error}}",
+      "deleted": "Команда \"{{name}}\" удалена.",
+      "deleteError": "Не удалось удалить команду: {{error}}",
+      "enabled": "Команда \"{{name}}\" была включена.",
+      "disabled": "Команда \"{{name}}\" была выключена.",
+      "toggleError": "Не удалось изменить статус команды.",
+      "updated": "Настройки команды \"{{name}}\" обновлены."
+    }
+  }
+}

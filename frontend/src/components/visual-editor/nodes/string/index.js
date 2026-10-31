@@ -1,0 +1,11 @@
+export { stringConcatDefinition } from './stringConcat';
+export { stringLiteralDefinition } from './stringLiteral';
+export { stringContainsDefinition } from './stringContains';
+export { stringMatchesDefinition } from './stringMatches';
+export { stringStartsWithDefinition } from './stringStartsWith';
+export { stringLengthDefinition } from './stringLength';
+export { stringEqualsDefinition } from './stringEquals';
+export { stringEndsWithDefinition } from './stringEndsWith';
+export { stringSplitDefinition } from './stringSplit';
+export { stringToUpperDefinition } from './stringToUpper';
+export { stringToLowerDefinition } from './stringToLower';

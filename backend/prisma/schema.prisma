@@ -1,0 +1,367 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Server {
+  id      Int    @id @default(autoincrement())
+  name    String @unique
+  host    String
+  port    Int    @default(25565)
+  version String
+  bots    Bot[]
+}
+
+model Proxy {
+  id       Int    @id @default(autoincrement())
+  name     String @unique
+  type     String @default("socks5") // "socks5" or "http"
+  host     String
+  port     Int
+  username String?
+  password String?
+  note     String?
+
+  bots     Bot[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bot {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String?
+  prefix   String? @default("@")
+  note     String?
+  owners   String? @default("")
+  sortOrder Int?
+
+  server   Server @relation(fields: [serverId], references: [id])
+  serverId Int
+
+  proxy    Proxy? @relation(fields: [proxyId], references: [id])
+  proxyId  Int?
+
+  proxyHost     String?
+  proxyPort     Int?
+  proxyUsername String?
+  proxyPassword String?
+
+  installedPlugins InstalledPlugin[]
+  users            User[]
+  groups           Group[]
+  permissions      Permission[]
+  commands         Command[]
+  eventGraphs      EventGraph[]
+  pluginData       PluginDataStore[]
+
+  panelUserAccess  PanelUserBotAccess[]
+  apiKeys          BotApiKey[]
+  apiConnectionLogs ApiConnectionLog[]
+  executionTraces  ExecutionTrace[]
+  commandInvocations CommandInvocation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model InstalledPlugin {
+  id          Int     @id @default(autoincrement())
+  botId       Int
+  bot         Bot     @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name        String
+  version     String
+  description String?
+  sourceType  String
+  sourceUri   String?
+  sourceRefType String?
+  sourceRef   String?
+  path        String
+  isEnabled   Boolean @default(true)
+  loadError   String?
+
+  manifest String?
+  settings String? @default("{}")
+
+  createdAt DateTime @default(now())
+
+  commands    Command[]
+  eventGraphs EventGraph[]
+
+  @@unique([botId, name])
+}
+
+model CommandInvocation {
+  id          Int      @id @default(autoincrement())
+  botId       Int
+  bot         Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  commandName String
+  username    String
+  typeChat    String?
+  argsJson    String   @default("{}")
+  success     Boolean  @default(true)
+  error       String?
+  createdAt   DateTime @default(now())
+
+  @@index([botId, createdAt])
+  @@index([botId, commandName, createdAt])
+}
+
+model Command {
+  id               Int     @id @default(autoincrement())
+  botId            Int
+  bot              Bot     @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name             String
+  isEnabled        Boolean @default(true)
+  cooldown         Int     @default(0)
+  aliases          String  @default("[]")
+  description      String?
+  owner            String?
+  permissionId     Int?
+  permission       Permission? @relation(fields: [permissionId], references: [id], onDelete: SetNull)
+  allowedChatTypes String  @default("[\"chat\", \"private\"]")
+
+  isVisual         Boolean @default(false)
+  argumentsJson    String? @default("[]")
+  graphJson        String? @default("null")
+  testsJson        String? @default("[]")
+  
+  pluginOwnerId    Int?
+  pluginOwner      InstalledPlugin? @relation(fields: [pluginOwnerId], references: [id], onDelete: SetNull)
+
+  @@unique([botId, name])
+}
+
+model EventGraph {
+  id          Int     @id @default(autoincrement())
+  botId       Int
+  bot         Bot     @relation(fields: [botId], references: [id], onDelete: Cascade)
+  name        String
+  isEnabled   Boolean @default(true)
+  graphJson   String? @default("null")
+  variables   String? @default("[]")
+
+  triggers    EventTrigger[]
+  executionTraces ExecutionTrace[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  pluginOwnerId    Int?
+  pluginOwner      InstalledPlugin? @relation(fields: [pluginOwnerId], references: [id], onDelete: SetNull)
+
+  @@unique([botId, name])
+}
+
+model EventTrigger {
+  id        Int      @id @default(autoincrement())
+  graphId   Int
+  graph     EventGraph @relation(fields: [graphId], references: [id], onDelete: Cascade)
+  eventType String   // e.g., "entitySpawn", "chat"
+
+  @@unique([graphId, eventType])
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String
+  isBlacklisted Boolean   @default(false)
+  botId         Int
+  bot           Bot       @relation(fields: [botId], references: [id], onDelete: Cascade)
+  groups        UserGroup[]
+
+  @@unique([botId, username])
+}
+
+model Group {
+  id          Int             @id @default(autoincrement())
+  name        String
+  owner       String          @default("system")
+  botId       Int
+  bot         Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
+  permissions GroupPermission[]
+  users       UserGroup[]
+
+  @@unique([botId, name])
+}
+
+model Permission {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String?
+  owner       String          @default("system")
+  botId       Int
+  bot         Bot             @relation(fields: [botId], references: [id], onDelete: Cascade)
+  groups      GroupPermission[]
+  commands    Command[] 
+
+  @@unique([botId, name])
+}
+
+
+model UserGroup {
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  Int
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int
+
+  @@id([userId, groupId])
+}
+
+model GroupPermission {
+  group        Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId      Int
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  permissionId Int
+
+  @@id([groupId, permissionId])
+}
+
+
+
+model ScheduledTask {
+  id           Int        @id @default(autoincrement())
+  name         String
+  cronPattern  String?
+  action       String
+  targetBotIds String // джсон массив ID ботов или "ALL"
+  payload      String?    @default("{}") // джсон для доп данных, например, команды
+  isEnabled    Boolean    @default(true)
+  runOnStartup Boolean    @default(false)
+  lastRun      DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model PanelUser {
+  id           Int      @id @default(autoincrement())
+  uuid         String   @unique @default(uuid())
+  username     String   @unique
+  passwordHash String
+  role         PanelRole @relation(fields: [roleId], references: [id])
+  roleId       Int
+  createdAt    DateTime @default(now())
+
+  allBots      Boolean  @default(true)
+
+  botAccess    PanelUserBotAccess[]
+  apiKeys      PanelApiKey[]
+}
+
+// Роли пользователей (Admin, Moderator, Viewer)
+model PanelRole {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique 
+  
+  // Храним права как джсон строку.  SQLite не поддерживает массивы.
+  // Пример: '[\"bot:create\", \"bot:delete\", \"user:manage\"]'
+  permissions String   @default("[]") 
+  users       PanelUser[]
+}
+
+model PanelUserBotAccess {
+  user   PanelUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+  bot    Bot       @relation(fields: [botId], references: [id], onDelete: Cascade)
+  botId  Int
+
+  @@id([userId, botId])
+}
+
+// API ключи для панели (для доступа к REST API и управления ботами)
+model PanelApiKey {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        PanelUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name        String    // "My Production Key", "Development Key"
+  keyHash     String    // bcrypt hash полного ключа
+  prefix      String    // "pk_abc123" для отображения в UI (первые 10 символов)
+
+  // Если NULL - наследует все права пользователя
+  // Если задано - ограниченный набор прав (JSON массив)
+  customScopes String?
+
+  lastUsedAt  DateTime?
+  expiresAt   DateTime? // Опционально: срок действия ключа
+  isActive    Boolean   @default(true)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([keyHash])
+}
+
+model PluginDataStore {
+  id         Int      @id @default(autoincrement())
+  pluginName String
+  botId      Int
+  key        String
+  value      String // в виде json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  bot Bot @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  @@unique([pluginName, botId, key])
+}
+
+model BotApiKey {
+  id          Int              @id @default(autoincrement())
+  botId       Int
+  bot         Bot              @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  name        String           // Название ключа (н-р, "Discord-бот")
+  keyHash     String           @unique // Хэш ключа (bcrypt), не сам ключ
+  keyPrefix   String           // Первые 8 символов ключа для отображения в UI
+  permissions String           @default("ReadWrite") // "Read", "Write", "ReadWrite"
+
+  createdAt   DateTime         @default(now())
+  lastUsedAt  DateTime?
+
+  @@index([botId])
+}
+
+model ApiConnectionLog {
+  id          Int      @id @default(autoincrement())
+  botId       Int
+  bot         Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  keyPrefix   String   // Префикс ключа, который использовался для подключения
+  ipAddress   String?  // IP адрес клиента
+  userAgent   String?  // User-Agent клиента (если доступен)
+  action      String   // "connect" или "disconnect"
+
+  createdAt   DateTime @default(now())
+
+  @@index([botId, createdAt])
+}
+
+model ExecutionTrace {
+  id          String   @id @default(uuid())
+  graphId     Int
+  botId       Int
+  eventType   String
+  eventArgs   String   // JSON
+  startTime   DateTime
+  endTime     DateTime?
+  status      String   // running, completed, error
+  error       String?
+  steps       String   // JSON array of ExecutionStep
+
+  bot         Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  graph       EventGraph @relation(fields: [graphId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@index([botId, graphId])
+  @@index([createdAt])
+  @@map("execution_traces")
+}

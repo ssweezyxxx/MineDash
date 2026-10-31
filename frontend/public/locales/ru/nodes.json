@@ -1,0 +1,1227 @@
+{
+  "common": {
+    "pins": {
+      "exec": "Выполнить",
+      "execDone": "Выполнено",
+      "value": "Значение",
+      "result": "Результат",
+      "condition": "Условие",
+      "array": "Массив",
+      "element": "Элемент",
+      "index": "Индекс",
+      "success": "Успех?",
+      "error": "Ошибка",
+      "true": "True",
+      "false": "False"
+    },
+    "placeholders": {
+      "select": "Выбрать...",
+      "enterText": "Введите текст...",
+      "variableName": "имя_переменной"
+    }
+  },
+
+  "flow:branch": {
+    "label": "Ветвление",
+    "description": "Условное ветвление на основе boolean значения",
+    "pins": {
+      "exec": "Выполнить",
+      "condition": "Условие",
+      "exec_true": "True",
+      "exec_true_desc": "Выполняется если условие true",
+      "exec_false": "False",
+      "exec_false_desc": "Выполняется если условие false"
+    }
+  },
+
+  "flow:sequence": {
+    "label": "Последовательность",
+    "description": "Последовательно выполняет несколько веток"
+  },
+
+  "flow:switch": {
+    "label": "Переключатель",
+    "description": "Выбирает ветку выполнения на основе значения",
+    "pins": {
+      "value_desc": "Значение для сравнения"
+    }
+  },
+
+  "flow:for_each": {
+    "label": "Перебор массива (цикл)",
+    "description": "Выполняет \"Тело цикла\" для каждого элемента в \"Массиве\"",
+    "pins": {
+      "loop_body": "Тело цикла",
+      "element": "Элемент",
+      "index": "Индекс",
+      "completed": "Завершено"
+    }
+  },
+
+  "flow:while": {
+    "label": "Цикл While",
+    "description": "Выполняет \"Тело цикла\" пока условие истинно",
+    "pins": {
+      "condition": "Условие",
+      "loop_body": "Тело цикла",
+      "iteration": "Итерация",
+      "completed": "Завершено"
+    }
+  },
+
+  "flow:break": {
+    "label": "Выйти из цикла",
+    "description": "Немедленно прерывает выполнение цикла (For Each Loop) и передает управление на его выход Completed"
+  },
+
+  "flow:delay": {
+    "label": "Задержка",
+    "description": "Ожидает указанное количество миллисекунд, затем продолжает выполнение",
+    "pins": {
+      "delay": "Задержка (мс)",
+      "next": "Далее"
+    }
+  },
+
+  "data:cast": {
+    "label": "Преобразовать тип",
+    "description": "Преобразует значение в выбранный тип",
+    "pins": {
+      "value": "Значение",
+      "result": "Результат"
+    }
+  },
+
+  "data:type_check": {
+    "label": "Проверить тип",
+    "description": "Проверяет соответствие значения типу",
+    "pins": {
+      "value_desc": "Значение для проверки",
+      "result_desc": "True если тип совпадает"
+    }
+  },
+
+  "data:get_variable": {
+    "label": "Получить переменную",
+    "description": "Получить значение переменной",
+    "pins": {
+      "variableName": "Имя переменной",
+      "value": "Значение",
+      "value_desc": "Значение переменной"
+    }
+  },
+
+  "data:get_argument": {
+    "label": "Получить аргумент",
+    "description": "Получает значение аргумента команды",
+    "pins": {
+      "argumentName": "Имя аргумента",
+      "value": "Значение",
+      "value_desc": "Значение аргумента"
+    }
+  },
+
+  "data:make_object": {
+    "label": "Создать объект",
+    "description": "Создаёт объект из JSON"
+  },
+
+  "data:number_literal": {
+    "label": "Число",
+    "description": "Простое числовое значение."
+  },
+
+  "data:boolean_literal": {
+    "label": "Boolean",
+    "description": "Булево значение (true/false)",
+    "pins": {
+      "value": "Значение",
+      "value_desc": "Булево значение"
+    }
+  },
+
+  "data:get_entity_field": {
+    "label": "Поле сущности",
+    "description": "Получает поля из объекта сущности",
+    "pins": {
+      "entity": "Сущность",
+      "entity_desc": "Объект сущности"
+    }
+  },
+
+  "data:get_server_players": {
+    "label": "Игроки сервера",
+    "description": "Список всех игроков на сервере",
+    "pins": {
+      "players": "Игроки",
+      "players_desc": "Массив имен игроков"
+    }
+  },
+
+  "data:get_nearby_entities": {
+    "label": "Ближайшие сущности",
+    "description": "Существа в радиусе от бота",
+    "pins": {
+      "radius": "Радиус",
+      "radius_desc": "Радиус поиска",
+      "entities": "Существа",
+      "entities_desc": "Массив существ"
+    }
+  },
+
+  "data:get_nearby_players": {
+    "label": "Ближайшие игроки",
+    "description": "Игроки рядом с ботом",
+    "pins": {
+      "radius": "Радиус",
+      "radius_desc": "Радиус поиска",
+      "players": "Игроки",
+      "players_desc": "Массив игроков с расстоянием"
+    }
+  },
+
+  "data:entity_info": {
+    "label": "Инфо о сущности",
+    "description": "Информация о существе",
+    "pins": {
+      "entity": "Существо",
+      "entity_desc": "Объект существа"
+    }
+  },
+
+  "data:get_user_field": {
+    "label": "Поле пользователя",
+    "description": "Получает поле пользователя бота"
+  },
+
+  "data:length": {
+    "label": "Длина",
+    "description": "Возвращает длину массива или строки",
+    "pins": {
+      "data": "Массив или Строка",
+      "data_desc": "Данные для измерения",
+      "length": "Длина",
+      "length_desc": "Количество элементов/символов"
+    }
+  },
+
+  "logic:compare": {
+    "label": "Сравнение",
+    "description": "Сравнение двух значений"
+  },
+
+  "logic:operation": {
+    "label": "Логическая операция",
+    "description": "Логические операции",
+    "pins": {
+      "result": "Результат",
+      "result_desc": "Результат логической операции"
+    }
+  },
+
+  "logic:not": {
+    "label": "! НЕ",
+    "description": "Инвертирует boolean значение (NOT)",
+    "pins": {
+      "value": "Значение",
+      "result": "Результат",
+      "result_desc": "Инвертированное значение"
+    }
+  },
+
+  "math:operation": {
+    "label": "Математическая операция",
+    "description": "Математические операции и сравнения",
+    "pins": {
+      "a_desc": "Первое число",
+      "b_desc": "Второе число",
+      "result_desc": "Результат операции"
+    }
+  },
+
+  "math:random_number": {
+    "label": "Случайное число",
+    "description": "Генерирует случайное число в заданном диапазоне",
+    "pins": {
+      "min": "Мин",
+      "max": "Макс",
+      "result": "Результат"
+    }
+  },
+
+  "string:concat": {
+    "label": "Объединить строки",
+    "description": "Объединяет несколько строк в одну",
+    "pins": {
+      "string_n": "Строка {{n}}"
+    }
+  },
+
+  "data:string_literal": {
+    "label": "Строка",
+    "description": "Строка с поддержкой переменных {name}",
+    "pins": {
+      "text": "Текст",
+      "value_desc": "Итоговая строка"
+    },
+    "placeholder": "Введите текст с {переменными}..."
+  },
+
+  "string:contains": {
+    "label": "Содержит",
+    "description": "Проверяет содержит ли строка подстроку"
+  },
+
+  "string:matches": {
+    "label": "Соответствует",
+    "description": "Проверяет соответствие строки регулярному выражению"
+  },
+
+  "string:starts_with": {
+    "label": "Начинается с",
+    "description": "Проверяет начинается ли строка с подстроки"
+  },
+
+  "string:ends_with": {
+    "label": "Заканчивается на",
+    "description": "Проверяет заканчивается ли строка подстрокой"
+  },
+
+  "string:length": {
+    "label": "Длина строки",
+    "description": "Возвращает длину строки"
+  },
+
+  "string:equals": {
+    "label": "Равны",
+    "description": "Проверяет равенство двух строк"
+  },
+
+  "string:split": {
+    "label": "Разделить",
+    "description": "Разделяет строку по разделителю"
+  },
+
+  "string:to_upper": {
+    "label": "В верхний регистр",
+    "description": "Преобразует строку в верхний регистр"
+  },
+
+  "string:to_lower": {
+    "label": "В нижний регистр",
+    "description": "Преобразует строку в нижний регистр"
+  },
+
+  "data:array_literal": {
+    "label": "Массив",
+    "description": "Создает массив из элементов",
+    "pins": {
+      "array_desc": "Созданный массив"
+    }
+  },
+
+  "array:get_random_element": {
+    "label": "Случайный элемент",
+    "description": "Возвращает случайный элемент из массива и его индекс",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Входной массив",
+      "element": "Элемент",
+      "element_desc": "Случайный элемент",
+      "index": "Индекс",
+      "index_desc": "Индекс элемента"
+    }
+  },
+
+  "array:contains": {
+    "label": "Содержит элемент",
+    "description": "Проверяет, содержит ли массив указанный элемент",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Входной массив",
+      "element": "Элемент",
+      "element_desc": "Элемент для поиска",
+      "result": "Найден",
+      "result_desc": "True если элемент найден",
+      "index": "Индекс",
+      "index_desc": "Индекс элемента (-1 если не найден)"
+    }
+  },
+
+  "array:get_by_index": {
+    "label": "Получить по индексу",
+    "description": "Получает элемент массива по его индексу",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Входной массив",
+      "index": "Индекс",
+      "index_desc": "Индекс элемента",
+      "element": "Элемент",
+      "element_desc": "Элемент по индексу"
+    }
+  },
+
+  "array:get_next": {
+    "label": "Следующий элемент",
+    "description": "Получает следующий элемент массива",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Входной массив",
+      "current_index": "Текущий индекс",
+      "current_index_desc": "Текущий индекс",
+      "next_element": "Следующий элемент",
+      "next_element_desc": "Следующий элемент",
+      "next_index": "Следующий индекс",
+      "next_index_desc": "Следующий индекс",
+      "has_next": "Есть следующий?",
+      "has_next_desc": "True если следующий элемент существует"
+    }
+  },
+
+  "array:add_element": {
+    "label": "Добавить элемент",
+    "description": "Добавляет элемент в конец массива",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Входной массив",
+      "element": "Элемент",
+      "element_desc": "Элемент для добавления",
+      "result": "Новый массив",
+      "result_desc": "Массив с добавленным элементом"
+    }
+  },
+
+  "array:remove_by_index": {
+    "label": "Удалить по индексу",
+    "description": "Удаляет элемент из массива по его индексу",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Входной массив",
+      "index": "Индекс",
+      "index_desc": "Индекс элемента для удаления",
+      "result": "Новый массив",
+      "result_desc": "Массив без элемента"
+    }
+  },
+
+  "array:find_index": {
+    "label": "Найти индекс",
+    "description": "Находит индекс элемента в массиве",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Входной массив",
+      "element": "Элемент",
+      "element_desc": "Элемент для поиска",
+      "index": "Индекс",
+      "index_desc": "Индекс элемента (-1 если не найден)"
+    }
+  },
+
+  "array:join": {
+    "label": "Объединить в строку",
+    "description": "Объединяет массив в строку с разделителем",
+    "pins": {
+      "array": "Массив",
+      "array_desc": "Массив для объединения",
+      "separator": "Разделитель",
+      "separator_desc": "Разделитель между элементами",
+      "result": "Результат",
+      "result_desc": "Строка из элементов массива"
+    }
+  },
+
+  "object:create": {
+    "label": "Создать объект",
+    "description": "Создает объект из пар ключ-значение",
+    "pins": {
+      "key_n": "Ключ {{n}}",
+      "value_n": "Значение {{n}}",
+      "object_desc": "Созданный объект"
+    }
+  },
+
+  "object:get": {
+    "label": "Получить свойство",
+    "description": "Получает значение свойства объекта"
+  },
+
+  "object:set": {
+    "label": "Установить свойство",
+    "description": "Устанавливает значение свойства объекта"
+  },
+
+  "object:delete": {
+    "label": "Удалить свойство",
+    "description": "Удаляет свойство из объекта"
+  },
+
+  "object:has_key": {
+    "label": "Содержит ключ",
+    "description": "Проверяет наличие ключа в объекте"
+  },
+
+  "action:send_message": {
+    "label": "Отправить сообщение",
+    "description": "Отправляет сообщение в чат. Поддерживает переменные в формате {varName}",
+    "pins": {
+      "chat_type": "Тип чата",
+      "message": "Сообщение",
+      "recipient": "Адресат",
+      "done": "Выполнено"
+    },
+    "placeholders": {
+      "message": "Текст сообщения с {переменными}",
+      "recipient": "Имя игрока"
+    }
+  },
+
+  "action:http_request": {
+    "label": "HTTP Запрос",
+    "description": "Выполняет HTTP запрос. Поддерживает переменные: {varName}",
+    "pins": {
+      "url_desc": "URL для запроса",
+      "method_desc": "HTTP метод",
+      "queryParams_desc": "Параметры URL (?key=value)",
+      "headers_desc": "HTTP заголовки",
+      "body_desc": "Тело запроса",
+      "exec_desc": "Выполняется после запроса",
+      "response_desc": "Ответ сервера",
+      "error_desc": "Ошибка если есть"
+    }
+  },
+
+  "action:send_log": {
+    "label": "Лог",
+    "description": "Отправляет сообщение в логи бота"
+  },
+
+  "action:send_websocket_response": {
+    "label": "WebSocket ответ",
+    "description": "Отправляет ответ клиенту через WebSocket API",
+    "pins": {
+      "data": "Данные",
+      "data_desc": "Данные для отправки"
+    }
+  },
+
+  "action:bot_look_at": {
+    "label": "Смотреть на",
+    "description": "Поворачивает голову бота на цель",
+    "pins": {
+      "target": "Цель",
+      "target_desc": "Позиция или сущность",
+      "offsetY": "Смещение Y",
+      "offsetY_desc": "Корректировка по Y"
+    }
+  },
+
+  "action:bot_set_variable": {
+    "label": "Установить переменную",
+    "description": "Записывает значение в переменную",
+    "pins": {
+      "name": "Имя",
+      "name_desc": "Имя переменной",
+      "value": "Значение",
+      "persist": "Хранить в БД?",
+      "execDone": "Выполнено"
+    }
+  },
+
+  "action:create_command": {
+    "label": "Создать команду",
+    "description": "Создаёт новую команду",
+    "pins": {
+      "exec": "Выполнить",
+      "name": "Имя команды",
+      "description": "Описание",
+      "aliases": "Алиасы",
+      "cooldown": "Кулдаун (сек)",
+      "allowedChatTypes": "Типы чата",
+      "permissionName": "Название права",
+      "temporary": "Временная?",
+      "commandId": "ID команды",
+      "success": "Успешно?"
+    },
+    "placeholders": {
+      "name": "моя-команда",
+      "description": "Описание команды",
+      "aliases": "[\"алиас1\", \"алиас2\"]",
+      "cooldown": "0",
+      "allowedChatTypes": "[\"chat\", \"private\"]",
+      "permissionName": "модератор"
+    },
+    "options": {
+      "temporary": {
+        "false": "Постоянная",
+        "true": "Временная"
+      }
+    }
+  },
+
+  "action:update_command": {
+    "label": "Обновить команду",
+    "description": "Обновляет существующую команду",
+    "pins": {
+      "exec": "Выполнить",
+      "commandName": "Имя команды",
+      "newName": "Новое имя",
+      "description": "Описание",
+      "aliases": "Алиасы",
+      "cooldown": "Кулдаун (сек)",
+      "allowedChatTypes": "Типы чата",
+      "permissionName": "Название права",
+      "success": "Успешно?"
+    },
+    "placeholders": {
+      "commandName": "моя-команда",
+      "newName": "новая-команда",
+      "description": "Новое описание команды",
+      "aliases": "[\"алиас1\", \"алиас2\"]",
+      "cooldown": "0",
+      "allowedChatTypes": "[\"chat\", \"private\"]",
+      "permissionName": "модератор"
+    }
+  },
+
+  "action:delete_command": {
+    "label": "Удалить команду",
+    "description": "Удаляет команду",
+    "pins": {
+      "exec": "Выполнить",
+      "commandName": "Имя команды",
+      "success": "Успешно?"
+    },
+    "placeholders": {
+      "commandName": "моя-команда"
+    }
+  },
+
+  "time:datetime_literal": {
+    "label": "Дата/Время",
+    "description": "Создаёт значение даты/времени"
+  },
+
+  "time:now": {
+    "label": "Сейчас",
+    "description": "Возвращает текущую дату и время",
+    "pins": {
+      "now": "Сейчас"
+    }
+  },
+
+  "time:format": {
+    "label": "Форматировать время",
+    "description": "Форматирует дату/время в строку"
+  },
+
+  "time:add": {
+    "label": "Добавить время",
+    "description": "Добавляет интервал к дате/времени"
+  },
+
+  "time:diff": {
+    "label": "Разница времени",
+    "description": "Вычисляет разницу между датами"
+  },
+
+  "time:compare": {
+    "label": "Сравнить время",
+    "description": "Сравнивает две даты/времени"
+  },
+
+  "user:check_blacklist": {
+    "label": "В чёрном списке?",
+    "description": "Проверяет, находится ли пользователь в чёрном списке",
+    "pins": {
+      "user": "Пользователь",
+      "user_desc": "Пользователь для проверки",
+      "is_blacklisted": "В ЧС",
+      "is_blacklisted_desc": "True если в чёрном списке"
+    }
+  },
+
+  "user:set_blacklist": {
+    "label": "Чёрный список",
+    "description": "Управляет чёрным списком пользователя",
+    "pins": {
+      "user": "Пользователь",
+      "user_desc": "Пользователь",
+      "add": "Добавить",
+      "add_desc": "True = добавить в ЧС"
+    }
+  },
+
+  "user:get_groups": {
+    "label": "Группы пользователя",
+    "description": "Возвращает группы пользователя",
+    "pins": {
+      "user": "Пользователь",
+      "user_desc": "Пользователь",
+      "groups": "Группы",
+      "groups_desc": "Массив групп"
+    }
+  },
+
+  "user:get_permissions": {
+    "label": "Права пользователя",
+    "description": "Возвращает права пользователя",
+    "pins": {
+      "user": "Пользователь",
+      "user_desc": "Пользователь",
+      "permissions": "Права",
+      "permissions_desc": "Массив прав"
+    }
+  },
+
+  "type:to_string": {
+    "label": "В строку",
+    "description": "Преобразует значение в строку"
+  },
+
+  "bot:get_position": {
+    "label": "Позиция бота",
+    "description": "Возвращает текущую позицию бота в мире",
+    "pins": {
+      "position": "Позиция",
+      "position_desc": "Объект с координатами {x, y, z}"
+    }
+  },
+
+  "debug:log": {
+    "label": "Отладка",
+    "description": "Выводит значение в консоль сервера",
+    "pins": {
+      "exec": "Выполнить",
+      "value": "Значение",
+      "value_desc": "Значение для вывода",
+      "execDone": "Выполнено"
+    }
+  },
+
+  "event:command": {
+    "label": "При выполнении команды",
+    "description": "Стартовая точка для графа команды",
+    "pins": {
+      "command_name": "Имя команды",
+      "user": "Пользователь",
+      "args": "Аргументы",
+      "chat_type": "Тип чата",
+      "success": "Успешно",
+      "success_desc": "Возвращает true, если команда не попала на ошибку"
+    }
+  },
+
+  "event:chat": {
+    "label": "Сообщение в чате",
+    "description": "Срабатывает, когда в чат приходит сообщение",
+    "pins": {
+      "username": "Игрок",
+      "message": "Сообщение",
+      "chatType": "Тип чата"
+    }
+  },
+
+  "event:raw_message": {
+    "label": "Сырое сообщение",
+    "description": "Срабатывает при получении любого сообщения"
+  },
+
+  "event:player_joined": {
+    "label": "Игрок зашёл",
+    "description": "Срабатывает когда игрок заходит на сервер"
+  },
+
+  "event:player_left": {
+    "label": "Игрок вышел",
+    "description": "Срабатывает когда игрок выходит с сервера"
+  },
+
+  "event:entity_spawn": {
+    "label": "Сущность появилась",
+    "description": "Срабатывает при появлении сущности"
+  },
+
+  "event:entity_moved": {
+    "label": "Сущность двигается",
+    "description": "Срабатывает при движении сущности"
+  },
+
+  "event:entity_gone": {
+    "label": "Сущность исчезла",
+    "description": "Срабатывает когда сущность пропадает"
+  },
+
+  "event:bot_died": {
+    "label": "Бот умер",
+    "description": "Срабатывает когда бот умирает"
+  },
+
+  "event:bot_startup": {
+    "label": "Запуск бота",
+    "description": "Срабатывает при запуске бота"
+  },
+
+  "event:health": {
+    "label": "Здоровье",
+    "description": "Срабатывает при изменении здоровья"
+  },
+
+  "event:websocket_call": {
+    "label": "WebSocket вызов",
+    "description": "Срабатывает при WebSocket вызове"
+  },
+
+  "inventory:get_all": {
+    "label": "Весь инвентарь",
+    "description": "Возвращает весь инвентарь бота как массив предметов",
+    "pins": {
+      "items": "Предметы",
+      "items_desc": "Массив предметов в инвентаре",
+      "count": "Кол-во слотов",
+      "count_desc": "Количество занятых слотов"
+    }
+  },
+
+  "inventory:find_item": {
+    "label": "Найти предмет",
+    "description": "Находит предмет в инвентаре",
+    "pins": {
+      "itemName": "Имя предмета",
+      "itemName_desc": "Имя предмета (minecraft id без префикса)",
+      "item": "Предмет",
+      "item_desc": "Объект предмета {name, count, slot, metadata}",
+      "found": "Найден?",
+      "found_desc": "true если предмет найден",
+      "slot": "Слот",
+      "slot_desc": "Номер слота где найден предмет"
+    }
+  },
+
+  "inventory:count_item": {
+    "label": "Подсчитать предметы",
+    "description": "Подсчитывает количество предметов",
+    "pins": {
+      "itemName": "Имя предмета",
+      "itemName_desc": "Имя предмета для подсчёта",
+      "count": "Количество",
+      "count_desc": "Общее количество предмета в инвентаре"
+    }
+  },
+
+  "inventory:has_item": {
+    "label": "Есть предмет?",
+    "description": "Проверяет наличие предмета",
+    "pins": {
+      "itemName": "Имя предмета",
+      "itemName_desc": "Имя предмета для проверки",
+      "minCount": "Мин. кол-во",
+      "minCount_desc": "Минимальное требуемое количество (по умолчанию 1)",
+      "hasItem": "Есть?",
+      "hasItem_desc": "true если предмет есть в нужном количестве",
+      "actualCount": "Фактически",
+      "actualCount_desc": "Фактическое количество предмета"
+    }
+  },
+
+  "inventory:get_slot": {
+    "label": "Получить слот",
+    "description": "Получает предмет из слота",
+    "pins": {
+      "slotNumber": "Номер слота",
+      "slotNumber_desc": "Номер слота (0-8 хотбар, 9-35 инвентарь, 36-39 броня, 40 офхенд)",
+      "item": "Предмет",
+      "item_desc": "Объект предмета или null если слот пуст",
+      "isEmpty": "Пусто?",
+      "isEmpty_desc": "true если слот пустой"
+    }
+  },
+
+  "inventory:get_held_item": {
+    "label": "Предмет в руке",
+    "description": "Возвращает предмет в руке",
+    "pins": {
+      "hand": "Рука",
+      "hand_desc": "Какую руку проверить",
+      "item": "Предмет",
+      "item_desc": "Объект предмета или null",
+      "name": "Имя",
+      "name_desc": "Имя предмета",
+      "count": "Количество",
+      "count_desc": "Количество в стаке",
+      "hasItem": "Есть предмет?",
+      "hasItem_desc": "true если в руке есть предмет"
+    }
+  },
+
+  "inventory:equip": {
+    "label": "Экипировать",
+    "description": "Экипирует предмет",
+    "pins": {
+      "itemName": "Предмет",
+      "itemName_desc": "Имя предмета для экипировки",
+      "destination": "Куда",
+      "destination_desc": "Куда экипировать предмет",
+      "success": "Успех?",
+      "success_desc": "true если предмет успешно экипирован"
+    }
+  },
+
+  "inventory:drop": {
+    "label": "Выбросить",
+    "description": "Выбрасывает предмет",
+    "pins": {
+      "itemName": "Предмет",
+      "itemName_desc": "Имя предмета для выброса",
+      "count": "Количество",
+      "count_desc": "Сколько выбросить (пусто = весь стак)",
+      "dropAll": "Выбросить все?",
+      "dropAll_desc": "Выбросить все такие предметы из инвентаря",
+      "dropped": "Выброшено",
+      "dropped_desc": "Сколько предметов выброшено"
+    }
+  },
+
+  "inventory:select_slot": {
+    "label": "Выбрать слот",
+    "description": "Выбирает слот в хотбаре",
+    "pins": {
+      "slot": "Слот",
+      "slot_desc": "Номер слота хотбара (0-8)",
+      "item": "Предмет",
+      "item_desc": "Предмет в выбранном слоте (или null)"
+    }
+  },
+
+  "navigation:go_to": {
+    "label": "Идти к",
+    "description": "Перемещает бота к указанным координатам используя pathfinding",
+    "pins": {
+      "range": "Радиус",
+      "range_desc": "На каком расстоянии остановиться (по умолчанию 1 блок)",
+      "arrived": "Дошёл",
+      "failed": "Не удалось",
+      "success_desc": "true если бот дошёл до точки"
+    }
+  },
+
+  "navigation:go_to_player": {
+    "label": "Идти к игроку",
+    "description": "Перемещает бота к игроку",
+    "pins": {
+      "playerName": "Имя игрока",
+      "playerName_desc": "Никнейм игрока",
+      "range": "Радиус",
+      "range_desc": "На каком расстоянии остановиться",
+      "success": "Успех?",
+      "success_desc": "true если бот дошёл до игрока",
+      "playerPosition": "Позиция игрока",
+      "playerPosition_desc": "Координаты игрока {x, y, z}"
+    }
+  },
+
+  "navigation:go_to_entity": {
+    "label": "Идти к сущности",
+    "description": "Перемещает бота к сущности",
+    "pins": {
+      "entity": "Сущность",
+      "entity_desc": "Объект сущности (из 'Существа рядом')",
+      "range": "Радиус",
+      "range_desc": "На каком расстоянии остановиться",
+      "success": "Успех?",
+      "success_desc": "true если бот дошёл до сущности"
+    }
+  },
+
+  "navigation:follow": {
+    "label": "Следовать",
+    "description": "Бот следует за целью",
+    "pins": {
+      "target": "Цель",
+      "target_desc": "Никнейм игрока за которым следовать",
+      "range": "Дистанция",
+      "range_desc": "На каком расстоянии держаться",
+      "following": "Следует?",
+      "following_desc": "true если начал следовать"
+    }
+  },
+
+  "navigation:stop": {
+    "label": "Остановить движение",
+    "description": "Останавливает движение бота"
+  },
+
+  "container:open": {
+    "label": "Контейнер: открыть",
+    "description": "Открывает контейнер (сундук, бочку) по координатам",
+    "pins": {
+      "x": "X",
+      "x_desc": "Координата X контейнера",
+      "y": "Y",
+      "y_desc": "Координата Y контейнера",
+      "z": "Z",
+      "z_desc": "Координата Z контейнера",
+      "opened": "Открыт",
+      "error": "Ошибка",
+      "container": "Контейнер",
+      "container_desc": "Объект открытого контейнера",
+      "success": "Успех?",
+      "success_desc": "true если контейнер открыт"
+    }
+  },
+
+  "container:close": {
+    "label": "Контейнер: закрыть",
+    "description": "Закрывает открытый контейнер"
+  },
+
+  "container:get_items": {
+    "label": "Предметы контейнера",
+    "description": "Получает список предметов из открытого контейнера",
+    "pins": {
+      "container": "Контейнер",
+      "container_desc": "Объект контейнера (если не указан - текущий открытый)",
+      "items": "Предметы",
+      "items_desc": "Массив предметов в контейнере",
+      "count": "Кол-во",
+      "count_desc": "Количество занятых слотов"
+    }
+  },
+
+  "container:deposit": {
+    "label": "Положить в контейнер",
+    "description": "Кладёт предмет из инвентаря в открытый контейнер",
+    "pins": {
+      "itemName": "Предмет",
+      "itemName_desc": "Имя предмета для перемещения",
+      "count": "Кол-во",
+      "count_desc": "Количество (пусто = все)",
+      "deposited": "Положено",
+      "deposited_desc": "Сколько предметов положено",
+      "success": "Успех?",
+      "success_desc": "true если хоть что-то положено"
+    }
+  },
+
+  "container:withdraw": {
+    "label": "Взять из контейнера",
+    "description": "Забирает предмет из контейнера в инвентарь",
+    "pins": {
+      "itemName": "Предмет",
+      "itemName_desc": "Имя предмета для забора",
+      "count": "Кол-во",
+      "count_desc": "Количество (пусто = все)",
+      "withdrawn": "Забрано",
+      "withdrawn_desc": "Сколько предметов забрано",
+      "success": "Успех?",
+      "success_desc": "true если хоть что-то забрано"
+    }
+  },
+
+  "container:deposit_all": {
+    "label": "Положить всё",
+    "description": "Кладёт все предметы (или определённого типа) в контейнер",
+    "pins": {
+      "itemName": "Предмет",
+      "itemName_desc": "Имя предмета (пусто = все предметы)",
+      "keepOne": "Оставить 1?",
+      "keepOne_desc": "Оставить хотя бы 1 предмет в инвентаре",
+      "deposited": "Положено",
+      "deposited_desc": "Сколько предметов положено"
+    }
+  },
+
+  "container:find_item": {
+    "label": "Найти в контейнере",
+    "description": "Ищет предмет в открытом контейнере",
+    "pins": {
+      "itemName": "Предмет",
+      "itemName_desc": "Имя искомого предмета",
+      "item": "Найден",
+      "item_desc": "Найденный предмет или null",
+      "slot": "Слот",
+      "slot_desc": "Номер слота (-1 если не найден)",
+      "totalCount": "Всего",
+      "totalCount_desc": "Общее количество в контейнере",
+      "found": "Найден?",
+      "found_desc": "true если предмет найден"
+    }
+  },
+
+  "furnace:open": {
+    "label": "Печка: открыть",
+    "description": "Открывает печку (обычную, плавильную, коптильню) по координатам",
+    "pins": {
+      "x": "X",
+      "x_desc": "Координата X печки",
+      "y": "Y",
+      "y_desc": "Координата Y печки",
+      "z": "Z",
+      "z_desc": "Координата Z печки",
+      "opened": "Открыта",
+      "error": "Ошибка",
+      "furnace": "Печка",
+      "furnace_desc": "Объект открытой печки",
+      "success": "Успех?",
+      "success_desc": "true если печка открыта"
+    }
+  },
+
+  "furnace:close": {
+    "label": "Печка: закрыть",
+    "description": "Закрывает печку"
+  },
+
+  "furnace:put_input": {
+    "label": "Печка: положить ресурс",
+    "description": "Кладёт предмет в слот плавки печки",
+    "pins": {
+      "itemName": "Предмет",
+      "itemName_desc": "Название предмета для плавки",
+      "count": "Кол-во",
+      "count_desc": "Количество (пусто = все)",
+      "success": "Успех?",
+      "success_desc": "true если предмет положен"
+    }
+  },
+
+  "furnace:put_fuel": {
+    "label": "Печка: положить топливо",
+    "description": "Кладёт топливо в слот топлива печки",
+    "pins": {
+      "itemName": "Топливо",
+      "itemName_desc": "Название топлива (coal, charcoal, etc.)",
+      "count": "Кол-во",
+      "count_desc": "Количество (пусто = все)",
+      "success": "Успех?",
+      "success_desc": "true если топливо положено"
+    }
+  },
+
+  "furnace:take_output": {
+    "label": "Печка: забрать",
+    "description": "Забирает готовый предмет из слота результата печки",
+    "pins": {
+      "item": "Предмет",
+      "item_desc": "Забранный предмет",
+      "count": "Кол-во",
+      "count_desc": "Количество забранных предметов",
+      "success": "Успех?",
+      "success_desc": "true если предмет забран"
+    }
+  },
+
+  "furnace:get_status": {
+    "label": "Печка: статус",
+    "description": "Получает текущий статус печки (топливо, прогресс, предметы в слотах)",
+    "pins": {
+      "inputItem": "Ресурс",
+      "inputItem_desc": "Предмет в слоте плавки",
+      "fuelItem": "Топливо",
+      "fuelItem_desc": "Предмет в слоте топлива",
+      "outputItem": "Результат",
+      "outputItem_desc": "Готовый предмет",
+      "fuel": "Топливо%",
+      "fuel_desc": "Оставшееся топливо (0-1)",
+      "progress": "Прогресс",
+      "progress_desc": "Прогресс плавки (0-1)",
+      "isBurning": "Горит?",
+      "isBurning_desc": "true если печка работает"
+    }
+  },
+
+  "world:find_block": {
+    "label": "Найти блок",
+    "description": "Ищет блоки по имени в загруженных чанках. Возраст 7 — спелые пшеница, морковь и картофель. Возраст 3 — свёкла и адский нарост.",
+    "pins": {
+      "name": "Имя блока",
+      "name_desc": "Имя блока, например wheat, carrots, nether_wart",
+      "radius": "Радиус",
+      "radius_desc": "Сколько блоков вокруг бота смотреть, от 1 до 64",
+      "count": "Сколько",
+      "count_desc": "Сколько ближайших блоков вернуть, от 1 до 32",
+      "minAge": "Мин. возраст",
+      "minAge_desc": "Пусто — любой блок с этим именем. 7 — спелая пшеница",
+      "block": "Блок",
+      "block_desc": "Ближайший блок: x, y, z, name, age",
+      "blocks": "Блоки",
+      "blocks_desc": "Список найденных блоков",
+      "age": "Возраст",
+      "age_desc": "Возраст культуры или пусто, если у блока его нет",
+      "exec_failed": "Не нашёл"
+    }
+  },
+
+  "world:dig": {
+    "label": "Сломать блок",
+    "description": "Ломает блок. Если он дальше досягаемости, бот сначала подходит.",
+    "pins": {
+      "block": "Блок",
+      "block_desc": "Блок из «Найти блок» или объект с x, y, z",
+      "x": "X",
+      "y": "Y",
+      "z": "Z",
+      "exec_failed": "Не удалось",
+      "success_desc": "true если блок сломан"
+    }
+  },
+
+  "world:place": {
+    "label": "Поставить блок",
+    "description": "Ставит предмет на грань блока. Семена пшеницы — wheat_seeds на верх грядки.",
+    "pins": {
+      "block": "Блок",
+      "block_desc": "Блок, к грани которого ставим",
+      "x": "X",
+      "y": "Y",
+      "z": "Z",
+      "face": "Грань",
+      "face_desc": "Какую грань нажать",
+      "itemName": "Предмет",
+      "itemName_desc": "Имя предмета в инвентаре. Пусто — то, что уже в руке",
+      "exec_failed": "Не удалось",
+      "success_desc": "true если блок поставлен"
+    },
+    "options": {
+      "face": {
+        "up": "Сверху",
+        "down": "Снизу",
+        "north": "Север",
+        "south": "Юг",
+        "east": "Восток",
+        "west": "Запад"
+      }
+    }
+  },
+
+  "world:attack": {
+    "label": "Ударить",
+    "description": "Один удар по сущности. Если она дальше 3 блоков, бот сначала подходит.",
+    "pins": {
+      "entity": "Сущность",
+      "entity_desc": "Сущность из списка существ рядом",
+      "exec_failed": "Не удалось",
+      "success_desc": "true если удар отправлен"
+    }
+  },
+
+  "navigation:step": {
+    "label": "Шаг",
+    "description": "Идёт на несколько блоков туда, куда смотрит бот: вперёд, назад, влево или вправо.",
+    "pins": {
+      "direction": "Направление",
+      "direction_desc": "Относительно взгляда бота, не сторон света",
+      "distance": "Блоки",
+      "distance_desc": "Сколько блоков пройти, от 1 до 64",
+      "exec_failed": "Не удалось",
+      "success_desc": "true если бот дошёл"
+    },
+    "options": {
+      "direction": {
+        "forward": "Вперёд",
+        "back": "Назад",
+        "left": "Влево",
+        "right": "Вправо"
+      }
+    }
+  }
+}

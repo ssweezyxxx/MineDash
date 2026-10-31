@@ -1,0 +1,36 @@
+name: discord plugin changes
+
+on:
+  push:
+    branches: [main]
+    paths: [index.json]
+  workflow_dispatch:
+    inputs:
+      before:
+        description: Parent commit
+        required: true
+        type: string
+      after:
+        description: Commit with the plugin change
+        required: true
+        type: string
+      pusher:
+        description: Who made the change
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          script: |
+            const { notify } = require(process.env.GITHUB_WORKSPACE + '/scripts/discord-changes.js');
+            await notify({ github, context, core });

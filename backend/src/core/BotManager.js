@@ -1,0 +1,244 @@
+/**
+ * BotManager Facade - делегирует вызовы специализированным сервисам
+ * Этот класс - точка входа для обратной совместимости со старым кодом
+ */
+class BotManager {
+    constructor({
+        botLifecycleService,
+        commandExecutionService,
+        botProcessManager,
+        resourceMonitorService,
+        telemetryService,
+        cacheManager,
+        eventGraphManager,
+        logger
+    }) {
+        this.lifecycleService = botLifecycleService;
+        this.commandService = commandExecutionService;
+        this.processManager = botProcessManager;
+        this.resourceMonitor = resourceMonitorService;
+        this.telemetry = telemetryService;
+        this.cache = cacheManager;
+        this.eventGraphManager = eventGraphManager;
+        this.logger = logger;
+
+        this.bots = this.processManager.getAllProcesses();
+        this.nodeRegistry = require('./NodeRegistry');
+        
+        this._cleanupRegistry = new Map();
+        this.intervals = [];
+
+        this._startBackgroundTasks();
+    }
+
+    _startBackgroundTasks() {
+        this.resourceMonitor.startMonitoring(5000);
+        this.telemetry.startHeartbeat(5 * 60 * 1000);
+        
+        const usageInterval = setInterval(() => this.updateAllResourceUsage(), 5000);
+        const syncInterval = setInterval(() => this.syncBotStatuses(), 10000);
+        
+        this.intervals.push(usageInterval, syncInterval);
+        this._cleanupRegistry.set('usageInterval', () => clearInterval(usageInterval));
+        this._cleanupRegistry.set('syncInterval', () => clearInterval(syncInterval));
+    }
+    
+    cleanup() {
+        for (const fn of this._cleanupRegistry.values()) {
+            try { fn(); } catch {}
+        }
+        this._cleanupRegistry.clear();
+        this.intervals.forEach(interval => clearInterval(interval));
+        this.intervals = [];
+    }
+
+    registerCleanup(key, fn) {
+        this._cleanupRegistry.set(key, fn);
+    }
+
+    initialize() {
+        if (!this.lifecycleService.eventGraphManager) {
+            this.lifecycleService.eventGraphManager = this.eventGraphManager;
+        }
+    }
+
+    // === Lifecycle methods ===
+    async startBot(botConfig) {
+        return this.lifecycleService.startBot(botConfig);
+    }
+
+    stopBot(botId) {
+        return this.lifecycleService.stopBot(botId);
+    }
+
+    async restartBot(botId, botConfig = null) {
+        return this.lifecycleService.restartBot(botId, botConfig);
+    }
+
+    isBotRunning(botId) {
+        return this.lifecycleService.isBotRunning(botId);
+    }
+
+    // === Configuration ===
+    async loadConfigForBot(botId) {
+        return this.lifecycleService.loadConfigForBot(botId);
+    }
+
+    invalidateConfigCache(botId) {
+        this.lifecycleService.invalidateConfigCache(botId);
+    }
+
+    reloadBotConfigInRealTime(botId) {
+        this.lifecycleService.reloadBotConfigInRealTime(botId);
+    }
+
+    // === Command execution ===
+    async handleCommandValidation(botConfig, message) {
+        return this.commandService.handleCommandValidation(botConfig, message);
+    }
+
+    async validateAndExecuteCommandForApi(botId, username, commandName, args) {
+        return this.commandService.validateAndExecuteCommandForApi(botId, username, commandName, args);
+    }
+
+    async handleCommandRegistration(botId, commandConfig) {
+        return this.commandService.handleCommandRegistration(botId, commandConfig);
+    }
+
+    async handleGroupRegistration(botId, groupConfig) {
+        return this.commandService.handleGroupRegistration(botId, groupConfig);
+    }
+
+    async handlePermissionsRegistration(botId, message) {
+        return this.commandService.handlePermissionsRegistration(botId, message.permissions);
+    }
+
+    async handleAddPermissionsToGroup(botId, message) {
+        return this.commandService.handleAddPermissionsToGroup(botId, message);
+    }
+
+    // === Process management ===
+    subscribeToPluginUi(botId, pluginName, socket) {
+        this.processManager.subscribeToPluginUi(botId, pluginName, socket);
+    }
+
+    unsubscribeFromPluginUi(botId, pluginName, socket) {
+        this.processManager.unsubscribeFromPluginUi(botId, pluginName, socket);
+    }
+
+    handleSocketDisconnect(socket) {
+        this.processManager.handleSocketDisconnect(socket);
+    }
+
+    // === Bot actions ===
+    sendMessageToBot(botId, message, chatType = 'command', username = null) {
+        return this.lifecycleService.sendMessageToBot(botId, message, chatType, username);
+    }
+
+    lookAt(botId, position) {
+        return this.lifecycleService.lookAt(botId, position);
+    }
+
+    async reloadPlugins(botId, pluginName = null) {
+        return this.lifecycleService.reloadPlugins(botId, pluginName);
+    }
+
+    sendServerCommandToBot(botId, command) {
+        this.lifecycleService.sendServerCommandToBot(botId, command);
+    }
+
+    async getPlayerList(botId) {
+        return this.lifecycleService.getPlayerList(botId);
+    }
+
+    async getLiveState(botId) {
+        return this.lifecycleService.getLiveState(botId);
+    }
+
+    async getNearbyEntities(botId, position = null, radius = 32) {
+        return this.lifecycleService.getNearbyEntities(botId, position, radius);
+    }
+
+    // === User cache ===
+    invalidateUserCache(botId, username) {
+        return this.lifecycleService.invalidateUserCache(botId, username);
+    }
+
+    invalidateAllUserCache(botId) {
+        return this.lifecycleService.invalidateAllUserCache(botId);
+    }
+
+    // === Resource monitoring ===
+    async updateAllResourceUsage() {
+        const usageData = await this.resourceMonitor.updateAllResourceUsage();
+        const { getIOSafe } = require('../real-time/socketHandler');
+        const io = getIOSafe();
+        if (io) {
+            io.emit('bots:usage', usageData);
+        }
+    }
+
+    getBotIdByPid(pid) {
+        return this.resourceMonitor.getBotIdByPid(pid);
+    }
+
+    // === Telemetry ===
+    triggerHeartbeat() {
+        this.telemetry.triggerHeartbeat();
+    }
+
+    async sendHeartbeat() {
+        return this.telemetry.sendHeartbeat();
+    }
+
+    // === Logging & state ===
+    appendLog(botId, logContent) {
+        this.lifecycleService.appendLog(botId, logContent);
+    }
+
+    getBotLogs(botId) {
+        return this.lifecycleService.getBotLogs(botId);
+    }
+
+    getFullState() {
+        return this.lifecycleService.getFullState();
+    }
+
+    emitStatusUpdate(botId, status, message = null) {
+        this.lifecycleService.emitStatusUpdate(botId, status, message);
+    }
+
+    syncBotStatuses() {
+        const processes = this.processManager.getAllProcesses();
+        const { getIOSafe } = require('../real-time/socketHandler');
+        const io = getIOSafe();
+
+        if (!io) return;
+
+        for (const [botId, child] of processes.entries()) {
+            const actualStatus = child.killed ? 'stopped' : 'running';
+            io.emit('bot:status', { botId, status: actualStatus });
+        }
+    }
+
+    // === EventGraph ===
+    setEventGraphManager(manager) {
+        this.eventGraphManager = manager;
+        this.lifecycleService.eventGraphManager = manager;
+    }
+
+    getChildProcess(botId) {
+        return this.lifecycleService.getChildProcess(botId);
+    }
+
+    // === Legacy async methods для migration ===
+    async _syncSystemPermissions(botId) {
+        return this.lifecycleService._syncSystemPermissions(botId);
+    }
+
+    async _ensureDefaultEventGraphs(botId) {
+        return;
+    }
+}
+
+module.exports = BotManager;

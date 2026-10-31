@@ -1,0 +1,68 @@
+name: 🐛 Сообщение об ошибке (Bug Report)
+description: Создайте отчет, чтобы помочь нам улучшить проект BlockMine.
+title: "[Bug] Краткое описание проблемы"
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Мяу** 
+        
+        Чтобы мы могли быстрее вам помочь, пожалуйста, предоставьте как можно больше деталей.
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Описание ошибки
+      description: Четко и кратко опишите, в чем заключается проблема.
+      placeholder: Например, 'При нажатии на кнопку "Сохранить" в настройках бота, ничего не происходит и в консоли появляется ошибка.'
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Шаги для воспроизведения (Необязательно)
+      description: Опишите по шагам(Если необходимо), как можно столкнуться с этой ошибкой.
+      placeholder: |
+        1. Перейдите в 'Настройки' конкретного бота.
+        2. Измените поле 'Префикс команд'.
+        3. Нажмите кнопку 'Сохранить'.
+        4. Настройки не сохраняются, а в правом верхнем углу появляется уведомление об ошибке.
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Ожидаемое поведение (Необязательно)
+      description: Что, по вашему мнению, должно было произойти?
+      placeholder: Настройки должны были сохраниться, и должно было появиться уведомление об успехе.
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Скриншоты или Видео (Необязательно)
+      description: Если возможно, приложите скриншоты или видео, демонстрирующие проблему. Вы можете просто перетащить файлы в это поле.
+      placeholder: "Вы можете перетащить файлы сюда."
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Ваше окружение (Необязательно)
+      description: Укажите информацию о вашей системе.
+      value: |
+        - **Версия BlockMine:** [например, 1.17.1]
+        - **Операционная система:** [например, Windows 11, Ubuntu 22.04]
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Дополнительный контекст и логи (Необязательно)
+      description: Есть ли что-то еще, что нам стоит знать об этой проблеме? Логи из консоли браузера (F12) или терминала, где запущена панель, будут очень полезны!
+      render: shell

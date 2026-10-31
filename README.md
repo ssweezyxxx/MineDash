@@ -1,4 +1,4 @@
-<img width="2048" height="2048" alt="image" src="https://github.com/user-attachments/assets/794a1e94-1f02-475d-8dd3-ec4841142350" />
+<img width="348" height="348" alt="image" src="https://github.com/user-attachments/assets/794a1e94-1f02-475d-8dd3-ec4841142350" />
 
 # MineDash 
 
